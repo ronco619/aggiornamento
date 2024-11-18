@@ -85,7 +85,7 @@ class AggiornaApp(tk.Tk):
         
     def scarica_da_github(self):
         try:
-            repo_url = "https://github.com/ronco619/aggiornamenti"
+            repo_url = "https://github.com/ronco619/aggiornamento"
             headers = {"Accept": "application/vnd.github.v3+json"}
             response = requests.get(repo_url, headers=headers)
             response.raise_for_status()
