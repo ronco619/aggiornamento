@@ -1,0 +1,69 @@
+INFO:root:Directory di backup assicurate: /media/self/BKDB/CLIENTI, /media/self/BKDB/TRANS
+INFO:root:Backup clienti creato: /media/self/BKDB/CLIENTI/bck-22-10-2024-19-39.csv
+INFO:root:Backup delle transazioni creato: /media/self/BKDB/TRANS/transactions-22-10-2024-19-39.csv
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+INFO:root:Chiusura del menu di configurazione
+INFO:root:Directory di backup assicurate: /media/self/BKDB/CLIENTI, /media/self/BKDB/TRANS
+INFO:root:Backup clienti creato: /media/self/BKDB/CLIENTI/bck-22-10-2024-19-50.csv
+INFO:root:Backup delle transazioni creato: /media/self/BKDB/TRANS/transactions-22-10-2024-19-50.csv
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+INFO:root:Chiusura del menu di configurazione
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+INFO:root:Chiusura del menu di configurazione
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+INFO:root:Chiusura del menu di configurazione
+INFO:root:Backup clienti creato: /media/self/BKDB/CLIENTI/bck-23-10-2024-01-50.csv
+INFO:root:Backup delle transazioni creato: /media/self/BKDB/TRANS/transactions-23-10-2024-01-50.csv
+INFO:root:Backup clienti creato: /media/self/BKDB/CLIENTI/bck-23-10-2024-07-50.csv
+INFO:root:Backup delle transazioni creato: /media/self/BKDB/TRANS/transactions-23-10-2024-07-50.csv
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+INFO:root:Chiusura del menu di configurazione
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+INFO:root:Chiusura del menu di configurazione
+INFO:root:Directory di backup assicurate: /media/self/BKDB/CLIENTI, /media/self/BKDB/TRANS
+INFO:root:Backup clienti creato: /media/self/BKDB/CLIENTI/bck-23-10-2024-09-59.csv
+INFO:root:Backup delle transazioni creato: /media/self/BKDB/TRANS/transactions-23-10-2024-09-59.csv
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+ERROR:root:Errore nel mostrare i totali assoluti: name 'logging' is not defined
+INFO:root:Chiusura del menu di configurazione
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Directory di backup assicurate: /media/self/BKDB/CLIENTI, /media/self/BKDB/TRANS
+INFO:root:Backup clienti creato: /media/self/BKDB/CLIENTI/bck-23-10-2024-10-01.csv
+INFO:root:Backup delle transazioni creato: /media/self/BKDB/TRANS/transactions-23-10-2024-10-01.csv
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Transazione registrata: 20 € per RONCHINI FEDERICO
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Transazione registrata: 20 € per RONCHINI FEDERICO
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Directory di backup assicurate: /media/self/BKDB/CLIENTI, /media/self/BKDB/TRANS
+INFO:root:Backup clienti creato: /media/self/BKDB/CLIENTI/bck-23-10-2024-10-03.csv
+INFO:root:Backup delle transazioni creato: /media/self/BKDB/TRANS/transactions-23-10-2024-10-03.csv
+ERROR:mfrc522Logger:AUTH ERROR!!
+ERROR:mfrc522Logger:AUTH ERROR(status2reg & 0x08) != 0
+INFO:root:Apertura del menu di configurazione
+ERROR:root:Errore nel mostrare i totali assoluti: name 'logging' is not defined
+INFO:root:Chiusura del menu di configurazione
