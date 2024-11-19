@@ -93,9 +93,9 @@ class GestioneVoci:
                 if len(row) < 3:
                     continue  # Skip rows that do not have at least 3 columns
                 self.voce_config[row[0]] = {"File Path": row[1], "Voice Enabled": row[2] == "True"}
-        def chiudi_app(self):
-            self.master.quit()
-        
+
+    def chiudi_app(self):
+        self.master.quit()
 
 if __name__ == "__main__":
     root = tk.Tk()
