@@ -88,6 +88,7 @@ class GestioneVoci:
                 if rows:
                     self.voce_abilitata.set(rows[0][0] == '1')
                     for row in rows[1:]:
+                        if len(row)>= 2:
                         self.aggiungi_voce_entry(row[0], row[1])
 
     def chiudi_app(self):
