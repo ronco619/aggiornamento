@@ -55,26 +55,32 @@ class AggiornaApp(tk.Tk):
     
     def aggiorna_da_usb(self):
         self.status_label.config(text="Aggiornamento da USB in corso...")
-        usb_path = "/media/usb/self.zip"
+        usb_base_path = "/media/self"
         try:
-            if os.path.exists(usb_path):
-                if os.path.exists("/home/self/Desktop/SELF"):
-                    subprocess.run(["rm", "-rf", "/home/self/Desktop/SELF"])
-                
-                # Estrai il contenuto di self.zip
-                with zipfile.ZipFile(usb_path, 'r') as zip_ref:
-                    zip_ref.extractall("/home/self/Desktop/SELF")
-                
-                # Leggi la versione dalla chiavetta USB
-                version_file = "/home/self/Desktop/SELF/versione.csv"
-                new_version = self.leggi_versione(version_file)
-
-                # Aggiorna il file della versione locale
-                self.scrivi_versione(new_version[1])
-                
-                self.status_label.config(text="Aggiornamento da USB completato con successo.")
+            # Trova il percorso della chiavetta USB
+            for item in os.listdir(usb_base_path):
+                usb_path = os.path.join(usb_base_path, item, "self.zip")
+                if os.path.exists(usb_path):
+                    break
             else:
                 self.status_label.config(text="File self.zip non trovato sulla chiavetta USB.")
+                return
+
+            if os.path.exists("/home/self/Desktop/SELF"):
+                subprocess.run(["rm", "-rf", "/home/self/Desktop/SELF"])
+
+            # Estrai il contenuto di self.zip
+            with zipfile.ZipFile(usb_path, 'r') as zip_ref:
+                zip_ref.extractall("/home/self/Desktop/SELF")
+
+            # Leggi la versione dalla chiavetta USB
+            version_file = "/home/self/Desktop/SELF/versione.csv"
+            new_version = self.leggi_versione(version_file)
+
+            # Aggiorna il file della versione locale
+            self.scrivi_versione(new_version[1])
+
+            self.status_label.config(text="Aggiornamento da USB completato con successo.")
         except Exception as e:
             self.status_label.config(text=f"Errore durante l'aggiornamento da USB: {str(e)}")
 
