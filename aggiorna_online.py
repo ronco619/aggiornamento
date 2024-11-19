@@ -31,6 +31,9 @@ class AggiornaApp(tk.Tk):
         self.current_version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
         self.current_version_label.pack(pady=20)
 
+        self.close_button = tk.Button(self, text="Chiudi", command=self.close_app, font=("Arial", 12))
+        self.close_button.pack(pady=20)
+
         self.github_repo = "https://api.github.com/repos/ronco619/aggiornamento/contents/"
         self.download_path = "/home/self/Desktop/AGGIORNAMENTI"
         self.self_path = "/home/self/Desktop/SELF"
@@ -111,6 +114,9 @@ class AggiornaApp(tk.Tk):
             self.update_button.pack(pady=20)  # Mostra il pulsante "Aggiorna" solo se il file è presente
         else:
             self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" se il file non è presente
+
+    def close_app(self):
+        self.destroy()
 
 if __name__ == "__main__":
     app = AggiornaApp()
