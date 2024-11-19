@@ -5,6 +5,7 @@ import os
 import csv
 import threading
 import shutil
+import subprocess
 
 class AggiornaApp(tk.Tk):
     def __init__(self):
@@ -31,8 +32,8 @@ class AggiornaApp(tk.Tk):
         self.current_version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
         self.current_version_label.pack(pady=20)
 
-        self.close_button = tk.Button(self, text="Chiudi", command=self.close_app, font=("Arial", 12))
-        self.close_button.pack(pady=20)
+        self.save_restart_button = tk.Button(self, text="Salva e Riavvia", command=self.save_and_restart, font=("Arial", 12))
+        self.save_restart_button.pack(pady=20)
 
         self.github_repo = "https://api.github.com/repos/ronco619/aggiornamento/contents/"
         self.download_path = "/home/self/Desktop/AGGIORNAMENTI"
@@ -103,6 +104,7 @@ class AggiornaApp(tk.Tk):
             shutil.move(self.download_path, self.self_path)
             os.makedirs(self.download_path)
             self.status_label.config(text="Aggiornamenti applicati con successo.")
+            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" dopo l'aggiornamento
             self.display_current_version()
         except Exception as e:
             self.status_label.config(text=f"Errore durante l'applicazione degli aggiornamenti: {str(e)}")
@@ -115,8 +117,14 @@ class AggiornaApp(tk.Tk):
         else:
             self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" se il file non è presente
 
-    def close_app(self):
-        self.destroy()
+    def save_and_restart(self):
+        self.save_settings()
+        self.destroy()  # Chiude tutte le finestre
+        subprocess.Popen(["bash", os.path.expanduser("~/restart_self.sh")])  # Esegue lo script di riavvio
+
+    def save_settings(self):
+        # Implementa la logica di salvataggio delle impostazioni qui
+        pass
 
 if __name__ == "__main__":
     app = AggiornaApp()
