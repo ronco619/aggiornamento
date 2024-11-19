@@ -1,136 +1,107 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
-import subprocess
-import threading
-import os
-import time
-import csv
+from tkinter import ttk, messagebox
 import requests
-import zipfile
-from datetime import datetime
+import os
+import csv
+import threading
+import shutil
 
-class AggiornaApp(tk.Tk):
+class UpdateApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Interfaccia di Aggiornamento")
-        self.geometry("1024x800")
+        self.title("Update System")
+        self.geometry("800x600")
         self.configure(bg="white")
         
         self.progress = ttk.Progressbar(self, orient="horizontal", length=400, mode="determinate")
         self.progress.pack(pady=20)
         
-        self.status_label = tk.Label(self, text="Premi 'Aggiorna' per iniziare.", bg="white", font=("Arial", 14))
+        self.status_label = tk.Label(self, text="Press 'Check for Updates' to start.", bg="white", font=("Arial", 14))
         self.status_label.pack(pady=20)
+
+        self.check_button = tk.Button(self, text="Check for Updates", command=self.check_updates, font=("Arial", 12))
+        self.check_button.pack(pady=20)
         
-        self.update_button = tk.Button(self, text="Aggiorna", command=self.applica_aggiornamenti, font=("Arial", 12))
+        self.update_button = tk.Button(self, text="Update", command=self.apply_updates, font=("Arial", 12))
         self.update_button.pack(pady=20)
-        
-        self.usb_button = tk.Button(self, text="Aggiorna da USB", command=self.aggiorna_da_usb, font=("Arial", 12))
-        self.usb_button.pack(pady=20)
-        
-        self.github_button = tk.Button(self, text="Aggiorna da GitHub", command=self.aggiorna_da_github, font=("Arial", 12))
-        self.github_button.pack(pady=20)
 
-        self.exit_button = tk.Button(self, text="Chiudi", command=self.quit, font=("Arial", 12))
-        self.exit_button.pack(pady=20)
-        
-        self.version_file = "/home/self/Desktop/AGGIORNAMENTI/versione.csv"
-        self.current_version = self.leggi_versione()
+        self.version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
+        self.version_label.pack(pady=20)
 
-    def applica_aggiornamenti(self):
-        self.status_label.config(text="Applicando aggiornamenti...")
-        try:
-            # Rimuovi la vecchia cartella e sostituisci con la nuova
-            if os.path.exists("/home/self/Desktop/SELF"):
-                subprocess.run(["rm", "-rf", "/home/self/Desktop/SELF"])
-            subprocess.run(["mv", "/home/self/Desktop/AGGIORNAMENTI", "/home/self/Desktop/SELF"])
-            
-            # Aggiorna il file della versione
-            new_version = "1.0.1"  # Questo dovrebbe essere dinamico
-            self.scrivi_versione(new_version)
-            
-            self.status_label.config(text="Aggiornamenti applicati con successo.")
-        except Exception as e:
-            self.status_label.config(text=f"Errore durante l'aggiornamento: {str(e)}")
-    
-    def aggiorna_da_usb(self):
-        self.status_label.config(text="Aggiornamento da USB in corso...")
-        usb_base_path = "/media/self"
-        try:
-            # Trova il percorso della chiavetta USB
-            for item in os.listdir(usb_base_path):
-                usb_path = os.path.join(usb_base_path, item, "self.zip")
-                if os.path.exists(usb_path):
-                    break
-            else:
-                self.status_label.config(text="File self.zip non trovato sulla chiavetta USB.")
-                return
+        self.current_version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
+        self.current_version_label.pack(pady=20)
 
-            if os.path.exists("/home/self/Desktop/SELF"):
-                subprocess.run(["rm", "-rf", "/home/self/Desktop/SELF"])
+        self.github_repo = "https://api.github.com/repos/ronco619/aggiornamento/contents/"
+        self.download_path = "/home/self/Desktop/AGGIORNAMENTI"
+        self.self_path = "/home/self/Desktop/SELF"
 
-            # Estrai il contenuto di self.zip
-            with zipfile.ZipFile(usb_path, 'r') as zip_ref:
-                zip_ref.extractall("/home/self/Desktop/SELF")
+        if not os.path.exists(self.download_path):
+            os.makedirs(self.download_path)
 
-            # Leggi la versione dalla chiavetta USB
-            version_file = "/home/self/Desktop/SELF/versione.csv"
-            new_version = self.leggi_versione(version_file)
+        self.display_current_version()
 
-            # Aggiorna il file della versione locale
-            self.scrivi_versione(new_version[1])
-
-            self.status_label.config(text="Aggiornamento da USB completato con successo.")
-        except Exception as e:
-            self.status_label.config(text=f"Errore durante l'aggiornamento da USB: {str(e)}")
-
-    def aggiorna_da_github(self):
-        self.status_label.config(text="Scaricando aggiornamenti da GitHub...")
-        self.progress.start()
-        threading.Thread(target=self.scarica_da_github).start()
-        
-    def scarica_da_github(self):
-        try:
-            repo_url = "https://github.com/ronco619/aggiornamento"
-            headers = {"Accept": "application/vnd.github.v3+json"}
-            response = requests.get(repo_url, headers=headers)
-            response.raise_for_status()
-            files = response.json()
-
-            for file in files:
-                download_url = file['download_url']
-                file_name = file['name']
-                response = requests.get(download_url)
-                with open(f"/home/self/Desktop/AGGIORNAMENTI/{file_name}", 'wb') as f:
-                    f.write(response.content)
-                self.progress.step(100 / len(files))
-                self.update_idletasks()
-
-            self.status_label.config(text="Aggiornamenti scaricati da GitHub.")
-        except Exception as e:
-            self.status_label.config(text=f"Errore durante il download da GitHub: {str(e)}")
-        finally:
-            self.progress.stop()
-
-    def leggi_versione(self, version_file=None):
-        if version_file is None:
-            version_file = self.version_file
+    def display_current_version(self):
+        version_file = os.path.join(self.self_path, "versione.csv")
         try:
             with open(version_file, mode='r') as file:
                 reader = csv.reader(file)
-                return next(reader)
+                current_version_info = "\n".join([" ".join(row) for row in reader])
+                self.current_version_label.config(text=f"Current Version Info:\n{current_version_info}")
         except Exception as e:
-            self.status_label.config(text=f"Errore durante la lettura della versione: {str(e)}")
-            return None
-    
-    def scrivi_versione(self, version):
+            self.current_version_label.config(text=f"Error reading current version file: {str(e)}")
+
+    def check_updates(self):
+        self.status_label.config(text="Checking for updates...")
+        self.progress.start()
+        threading.Thread(target=self.download_from_github).start()
+
+    def download_from_github(self):
         try:
-            with open("/home/self/Desktop/SELF/versione.csv", mode='w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow([datetime.now().strftime("%Y-%m-%d"), version])
+            headers = {"Accept": "application/vnd.github.v3+json"}
+            response = requests.get(self.github_repo, headers=headers)
+            response.raise_for_status()
+            files = response.json()
+
+            for i, file in enumerate(files):
+                download_url = file['download_url']
+                file_name = file['name']
+                file_response = requests.get(download_url)
+                file_response.raise_for_status()
+                with open(os.path.join(self.download_path, file_name), 'wb') as f:
+                    f.write(file_response.content)
+                self.progress.step(100 / len(files))
+                self.update_idletasks()
+
+            self.status_label.config(text="Updates downloaded from GitHub.")
+            self.display_version()
         except Exception as e:
-            self.status_label.config(text=f"Errore durante la scrittura della versione: {str(e)}")
+            self.status_label.config(text=f"Error during download: {str(e)}")
+        finally:
+            self.progress.stop()
+
+    def display_version(self):
+        version_file = os.path.join(self.download_path, "versione.csv")
+        try:
+            with open(version_file, mode='r') as file:
+                reader = csv.reader(file)
+                version_info = "\n".join([" ".join(row) for row in reader])
+                self.version_label.config(text=f"Downloaded Version Info:\n{version_info}")
+        except Exception as e:
+            self.version_label.config(text=f"Error reading version file: {str(e)}")
+
+    def apply_updates(self):
+        self.status_label.config(text="Applying updates...")
+        try:
+            if os.path.exists(self.self_path):
+                shutil.rmtree(self.self_path)
+            shutil.move(self.download_path, self.self_path)
+            os.makedirs(self.download_path)
+            self.status_label.config(text="Updates applied successfully.")
+            self.display_current_version()
+        except Exception as e:
+            self.status_label.config(text=f"Error applying updates: {str(e)}")
+            os.makedirs(self.download_path)  # Ensure the download directory exists
 
 if __name__ == "__main__":
-    app = AggiornaApp()
+    app = UpdateApp()
     app.mainloop()
