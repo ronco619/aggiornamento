@@ -1,9 +1,8 @@
 Voice Name,File Path,Voice Enabled
-True
-tessera,/home/self/Desktop/sintesi vocale/p_33228026_232.mp3
-visualiz_cliente,/home/self/Desktop/sintesi vocale/p_33228134_326.mp3
-ricarica,/home/self/Desktop/sintesi vocale/p_33228322_490.mp3
-termina_ricarica,/home/self/Desktop/sintesi vocale/p_33228377_548.mp3
-grazie,/home/self/Desktop/sintesi vocale/p_33228478_663.mp3
-registra,/home/self/Desktop/sintesi vocale/p_33228559_767.mp3
-registra_effet,/home/self/Desktop/sintesi vocale/p_33228624_842.mp3
+tessera,/home/self/Desktop/sintesi vocale/p_33228026_232.mp3,True
+visualiz_cliente,/home/self/Desktop/sintesi vocale/p_33228134_326.mp3,True
+ricarica,/home/self/Desktop/sintesi vocale/p_33228322_490.mp3,True
+termina_ricarica,/home/self/Desktop/sintesi vocale/p_33228377_548.mp3,True
+grazie,/home/self/Desktop/sintesi vocale/p_33228478_663.mp3,True
+registra,/home/self/Desktop/sintesi vocale/p_33228559_767.mp3,True
+registra_effet,/home/self/Desktop/sintesi vocale/p_33228624_842.mp3,True
