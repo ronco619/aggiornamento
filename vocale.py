@@ -86,20 +86,16 @@ class GestioneVoci:
                 writer.writerow([nome_voce.get(), percorso_voce.get()])
 
     def carica_config(self):
-        config_file = "/home/self/Desktop/sintesi vocale/config_voci.csv"
-        if os.path.exists(config_file):
-            with open(config_file, mode='r') as file:
-                reader = csv.reader(file)
-                rows = list(reader)
-                if rows:
-                    self.voce_abilitata.set(rows[0][0] == '1')
-                    for row in rows[1:]:
-                        if len(row) >= 2:
-                            self.voce_config[row[0]] = {"File Path": row[1], "Voice Enabled": row[2] == "True"}
-                            self.aggiungi_voce_entry(row[0], row[1])
-
-    def chiudi_app(self):
-        self.master.quit()
+        with open('voice_config.csv', mode='r') as file:
+            csv_reader = csv.reader(file)
+            next(csv_reader)  # Skip the header row
+            for row in csv_reader:
+                if len(row) < 3:
+                    continue  # Skip rows that do not have at least 3 columns
+                self.voce_config[row[0]] = {"File Path": row[1], "Voice Enabled": row[2] == "True"}
+        def chiudi_app(self):
+            self.master.quit()
+        
 
 if __name__ == "__main__":
     root = tk.Tk()
