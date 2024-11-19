@@ -4,98 +4,96 @@ import csv
 import os
 import pygame
 
-class VoiceManager:
+class GestioneVoci:
     def __init__(self, master):
         self.master = master
-        self.master.title("Voice Management")
+        self.master.title("Gestione Voci")
         self.master.geometry("1024x800")
         self.master.attributes('-fullscreen', True)
-        self.voice_enabled = tk.BooleanVar()
-        self.voice_entries = []
+        self.voce_abilitata = tk.BooleanVar()
+        self.voci_entries = []
 
         self.setup_ui()
-        self.load_config()
+        self.carica_config()
 
     def setup_ui(self):
-        tk.Checkbutton(self.master, text="Enable Voice Function", variable=self.voice_enabled).pack(pady=10)
+        tk.Checkbutton(self.master, text="Abilita Funzione Voce", variable=self.voce_abilitata).pack(pady=10)
         
-        self.voice_frame = tk.Frame(self.master)
-        self.voice_frame.pack(pady=10)
+        self.voci_frame = tk.Frame(self.master)
+        self.voci_frame.pack(pady=10)
 
-        tk.Button(self.master, text="Add Voice", command=self.add_voice_entry).pack(pady=5)
-        tk.Button(self.master, text="Save and Exit", command=self.save_and_exit).pack(pady=10)
-        tk.Button(self.master, text="Close", command=self.close_app).pack(pady=10)
+        tk.Button(self.master, text="Aggiungi Voce", command=self.aggiungi_voce_entry).pack(pady=5)
+        tk.Button(self.master, text="Salva ed Esci", command=self.salva_ed_esci).pack(pady=10)
+        tk.Button(self.master, text="Chiudi", command=self.chiudi_app).pack(pady=10)
 
-    def add_voice_entry(self, voice_name="", voice_path=""):
-        entry_frame = tk.Frame(self.voice_frame)
+    def aggiungi_voce_entry(self, nome_voce="", percorso_voce=""):
+        entry_frame = tk.Frame(self.voci_frame)
         entry_frame.pack(pady=5)
 
-        tk.Label(entry_frame, text="Voice Name:").pack(side=tk.LEFT)
-        voice_name_entry = tk.Entry(entry_frame)
-        voice_name_entry.pack(side=tk.LEFT, padx=5)
-        voice_name_entry.insert(0, voice_name)
+        tk.Label(entry_frame, text="Nome Voce:").pack(side=tk.LEFT)
+        nome_voce_entry = tk.Entry(entry_frame)
+        nome_voce_entry.pack(side=tk.LEFT, padx=5)
+        nome_voce_entry.insert(0, nome_voce)
 
-        tk.Label(entry_frame, text="File Path:").pack(side=tk.LEFT)
-        voice_path_entry = tk.Entry(entry_frame)
-        voice_path_entry.pack(side=tk.LEFT, padx=5)
-        voice_path_entry.insert(0, voice_path)
+        tk.Label(entry_frame, text="Percorso File:").pack(side=tk.LEFT)
+        percorso_voce_entry = tk.Entry(entry_frame)
+        percorso_voce_entry.pack(side=tk.LEFT, padx=5)
+        percorso_voce_entry.insert(0, percorso_voce)
 
-        tk.Button(entry_frame, text="Browse", command=lambda: self.browse_file(voice_path_entry)).pack(side=tk.LEFT, padx=5)
-        tk.Button(entry_frame, text="Play", command=lambda: self.play_voice(voice_path_entry.get())).pack(side=tk.LEFT, padx=5)
+        tk.Button(entry_frame, text="Sfoglia", command=lambda: self.sfoglia_file(percorso_voce_entry)).pack(side=tk.LEFT, padx=5)
+        tk.Button(entry_frame, text="Riproduci", command=lambda: self.riproduci_voce(percorso_voce_entry.get())).pack(side=tk.LEFT, padx=5)
         
-        self.voice_entries.append((voice_name_entry, voice_path_entry))
+        self.voci_entries.append((nome_voce_entry, percorso_voce_entry))
 
-    def browse_file(self, entry):
-        file_path = filedialog.askopenfilename(filetypes=[("Audio Files", "*.mp3 *.wav")])
+    def sfoglia_file(self, entry):
+        file_path = filedialog.askopenfilename(filetypes=[("File Audio", "*.mp3 *.wav")])
         if file_path:
             entry.delete(0, tk.END)
             entry.insert(0, file_path)
 
-    def play_voice(self, file_path):
+    def riproduci_voce(self, file_path):
         if not os.path.exists(file_path):
-            messagebox.showerror("Error", "File not found!")
+            messagebox.showerror("Errore", "File non trovato!")
             return
 
         pygame.mixer.init()
         pygame.mixer.music.load(file_path)
         pygame.mixer.music.play()
 
-    def save_and_exit(self):
-        self.save_config()
+    def salva_ed_esci(self):
+        self.salva_config()
         self.master.quit()
 
-    def save_config(self):
+    def salva_config(self):
         config_dir = "/home/self/Desktop/sintesi vocale"
         if not os.path.exists(config_dir):
             os.makedirs(config_dir)
 
-        config_file = os.path.join(config_dir, "voice_config.csv")
+        config_file = os.path.join(config_dir, "config_voci.csv")
 
         with open(config_file, mode='w', newline='') as file:
             writer = csv.writer(file)
-            writer.writerow(["Voice Name", "File Path", "Voice Enabled"])
-            writer.writerow([self.voice_enabled.get()])
+            writer.writerow(["Nome Voce", "Percorso File", "Voce Abilitata"])
+            writer.writerow([self.voce_abilitata.get()])
 
-            for voice_name, voice_path in self.voice_entries:
-                writer.writerow([voice_name.get(), voice_path.get()])
+            for nome_voce, percorso_voce in self.voci_entries:
+                writer.writerow([nome_voce.get(), percorso_voce.get()])
 
-        messagebox.showinfo("Saved", "Configuration saved successfully!")
-
-    def load_config(self):
-        config_file = "/home/self/Desktop/sintesi vocale/voice_config.csv"
+    def carica_config(self):
+        config_file = "/home/self/Desktop/sintesi vocale/config_voci.csv"
         if os.path.exists(config_file):
             with open(config_file, mode='r') as file:
                 reader = csv.reader(file)
                 rows = list(reader)
                 if rows:
-                    self.voice_enabled.set(rows[0][0] == '1')
+                    self.voce_abilitata.set(rows[0][0] == '1')
                     for row in rows[1:]:
-                        self.add_voice_entry(row[0], row[1])
+                        self.aggiungi_voce_entry(row[0], row[1])
 
-    def close_app(self):
+    def chiudi_app(self):
         self.master.quit()
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = VoiceManager(root)
+    app = GestioneVoci(root)
     root.mainloop()
