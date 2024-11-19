@@ -245,6 +245,8 @@ class ConfigMenu:
 
     def show_configurations(self):
         config_window = self.create_sub_window("Configurazioni")
+        self.resize_and_center_window(config_window, 1024, 800)
+
 
         # Rimuovi la chiamata a overrideredirect(True)
         # config_window.overrideredirect(True)
