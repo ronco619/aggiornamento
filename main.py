@@ -26,7 +26,7 @@ class MainApp:
         self.master = master
         self.master.title("Sistema di Controllo Accessi")
         self.master.geometry("1024x900")
-        self.master.attributes('-fullscreen', True)
+        self.force_fullscreen()
         self.master.bind('<Escape>', self.exit_fullscreen)
         self.master.config(cursor="none")  # Imposta il cursore su "none" all'avvio
         
@@ -65,9 +65,14 @@ class MainApp:
             logging.error("Errore nell'inizializzazione del lettore RFID")
             print("Errore nell'inizializzazione del lettore RFID")
 
+    def force_fullscreen(self):
+        self.master.attributes('-fullscreen', True)
+
     def exit_fullscreen(self, event=None):
         self.master.attributes('-fullscreen', False)
         self.master.destroy()
+
+    # ... rest of the code ...
 
     def start_backup_schedule(self):
         try:
