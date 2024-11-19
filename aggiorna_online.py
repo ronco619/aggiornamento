@@ -38,7 +38,9 @@ class AggiornaApp(tk.Tk):
         if not os.path.exists(self.download_path):
             os.makedirs(self.download_path)
 
+        self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" inizialmente
         self.display_current_version()
+        self.check_version_file()  # Controlla se il file versione.csv è presente
 
     def display_current_version(self):
         version_file = os.path.join(self.self_path, "versione.csv")
@@ -74,6 +76,7 @@ class AggiornaApp(tk.Tk):
 
             self.status_label.config(text="Aggiornamenti scaricati da GitHub.")
             self.display_version()
+            self.check_version_file()  # Ricontrolla il file versione.csv dopo il download
         except Exception as e:
             self.status_label.config(text=f"Errore durante il download: {str(e)}")
         finally:
@@ -101,6 +104,13 @@ class AggiornaApp(tk.Tk):
         except Exception as e:
             self.status_label.config(text=f"Errore durante l'applicazione degli aggiornamenti: {str(e)}")
             os.makedirs(self.download_path)  # Assicurati che la directory di download esista
+
+    def check_version_file(self):
+        version_file = os.path.join(self.download_path, "versione.csv")
+        if os.path.exists(version_file):
+            self.update_button.pack(pady=20)  # Mostra il pulsante "Aggiorna" solo se il file è presente
+        else:
+            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" se il file non è presente
 
 if __name__ == "__main__":
     app = AggiornaApp()
