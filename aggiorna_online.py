@@ -6,23 +6,23 @@ import csv
 import threading
 import shutil
 
-class UpdateApp(tk.Tk):
+class AggiornaApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Update System")
-        self.geometry("800x600")
+        self.title("Sistema di Aggiornamento")
+        self.geometry("1024x800")
         self.configure(bg="white")
         
         self.progress = ttk.Progressbar(self, orient="horizontal", length=400, mode="determinate")
         self.progress.pack(pady=20)
         
-        self.status_label = tk.Label(self, text="Press 'Check for Updates' to start.", bg="white", font=("Arial", 14))
+        self.status_label = tk.Label(self, text="Premi 'Controlla Aggiornamenti' per iniziare.", bg="white", font=("Arial", 14))
         self.status_label.pack(pady=20)
 
-        self.check_button = tk.Button(self, text="Check for Updates", command=self.check_updates, font=("Arial", 12))
+        self.check_button = tk.Button(self, text="Controlla Aggiornamenti", command=self.check_updates, font=("Arial", 12))
         self.check_button.pack(pady=20)
         
-        self.update_button = tk.Button(self, text="Update", command=self.apply_updates, font=("Arial", 12))
+        self.update_button = tk.Button(self, text="Aggiorna", command=self.apply_updates, font=("Arial", 12))
         self.update_button.pack(pady=20)
 
         self.version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
@@ -45,13 +45,13 @@ class UpdateApp(tk.Tk):
         try:
             with open(version_file, mode='r') as file:
                 reader = csv.reader(file)
-                current_version_info = "\n".join([" ".join(row) for row in reader])
-                self.current_version_label.config(text=f"Current Version Info:\n{current_version_info}")
+                current_version_info = " ".join(next(reader))
+                self.current_version_label.config(text=f"Versione Corrente:\n{current_version_info}")
         except Exception as e:
-            self.current_version_label.config(text=f"Error reading current version file: {str(e)}")
+            self.current_version_label.config(text=f"Errore durante la lettura del file versione corrente: {str(e)}")
 
     def check_updates(self):
-        self.status_label.config(text="Checking for updates...")
+        self.status_label.config(text="Controllo aggiornamenti in corso...")
         self.progress.start()
         threading.Thread(target=self.download_from_github).start()
 
@@ -72,10 +72,10 @@ class UpdateApp(tk.Tk):
                 self.progress.step(100 / len(files))
                 self.update_idletasks()
 
-            self.status_label.config(text="Updates downloaded from GitHub.")
+            self.status_label.config(text="Aggiornamenti scaricati da GitHub.")
             self.display_version()
         except Exception as e:
-            self.status_label.config(text=f"Error during download: {str(e)}")
+            self.status_label.config(text=f"Errore durante il download: {str(e)}")
         finally:
             self.progress.stop()
 
@@ -84,24 +84,24 @@ class UpdateApp(tk.Tk):
         try:
             with open(version_file, mode='r') as file:
                 reader = csv.reader(file)
-                version_info = "\n".join([" ".join(row) for row in reader])
-                self.version_label.config(text=f"Downloaded Version Info:\n{version_info}")
+                version_info = "\n".join([" ".join(row) for row in list(reader)[:10]])
+                self.version_label.config(text=f"Informazioni sulla Versione Scaricata:\n{version_info}")
         except Exception as e:
-            self.version_label.config(text=f"Error reading version file: {str(e)}")
+            self.version_label.config(text=f"Errore durante la lettura del file versione: {str(e)}")
 
     def apply_updates(self):
-        self.status_label.config(text="Applying updates...")
+        self.status_label.config(text="Applicazione degli aggiornamenti in corso...")
         try:
             if os.path.exists(self.self_path):
                 shutil.rmtree(self.self_path)
             shutil.move(self.download_path, self.self_path)
             os.makedirs(self.download_path)
-            self.status_label.config(text="Updates applied successfully.")
+            self.status_label.config(text="Aggiornamenti applicati con successo.")
             self.display_current_version()
         except Exception as e:
-            self.status_label.config(text=f"Error applying updates: {str(e)}")
-            os.makedirs(self.download_path)  # Ensure the download directory exists
+            self.status_label.config(text=f"Errore durante l'applicazione degli aggiornamenti: {str(e)}")
+            os.makedirs(self.download_path)  # Assicurati che la directory di download esista
 
 if __name__ == "__main__":
-    app = UpdateApp()
+    app = AggiornaApp()
     app.mainloop()
