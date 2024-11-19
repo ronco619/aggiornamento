@@ -23,7 +23,7 @@ class AggiornaApp(tk.Tk):
         self.check_button = tk.Button(self, text="Controlla Aggiornamenti", command=self.check_updates, font=("Arial", 12))
         self.check_button.pack(pady=20)
         
-        self.update_button = tk.Button(self, text="Aggiorna", command=self.apply_updates, font=("Arial", 12))
+        self.update_button = tk.Button(self, text="Aggiorna e Riavvia", command=self.apply_updates_and_restart, font=("Arial", 12))
         self.update_button.pack(pady=20)
 
         self.version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
@@ -32,8 +32,8 @@ class AggiornaApp(tk.Tk):
         self.current_version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
         self.current_version_label.pack(pady=20)
 
-        self.save_restart_button = tk.Button(self, text="Salva e Riavvia", command=self.save_and_restart, font=("Arial", 12))
-        self.save_restart_button.pack(pady=20)
+        self.close_button = tk.Button(self, text="Chiudi", command=self.chiudi_app, font=("Arial", 12))
+        self.close_button.pack(pady=20)
 
         self.github_repo = "https://api.github.com/repos/ronco619/aggiornamento/contents/"
         self.download_path = "/home/self/Desktop/AGGIORNAMENTI"
@@ -42,7 +42,7 @@ class AggiornaApp(tk.Tk):
         if not os.path.exists(self.download_path):
             os.makedirs(self.download_path)
 
-        self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" inizialmente
+        self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna e Riavvia" inizialmente
         self.display_current_version()
         self.check_version_file()  # Controlla se il file versione.csv è presente
 
@@ -96,7 +96,7 @@ class AggiornaApp(tk.Tk):
         except Exception as e:
             self.version_label.config(text=f"Errore durante la lettura del file versione: {str(e)}")
 
-    def apply_updates(self):
+    def apply_updates_and_restart(self):
         self.status_label.config(text="Applicazione degli aggiornamenti in corso...")
         try:
             if os.path.exists(self.self_path):
@@ -104,8 +104,9 @@ class AggiornaApp(tk.Tk):
             shutil.move(self.download_path, self.self_path)
             os.makedirs(self.download_path)
             self.status_label.config(text="Aggiornamenti applicati con successo.")
-            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" dopo l'aggiornamento
+            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna e Riavvia" dopo l'aggiornamento
             self.display_current_version()
+            self.save_and_restart()
         except Exception as e:
             self.status_label.config(text=f"Errore durante l'applicazione degli aggiornamenti: {str(e)}")
             os.makedirs(self.download_path)  # Assicurati che la directory di download esista
@@ -113,9 +114,9 @@ class AggiornaApp(tk.Tk):
     def check_version_file(self):
         version_file = os.path.join(self.download_path, "versione.csv")
         if os.path.exists(version_file):
-            self.update_button.pack(pady=20)  # Mostra il pulsante "Aggiorna" solo se il file è presente
+            self.update_button.pack(pady=20)  # Mostra il pulsante "Aggiorna e Riavvia" solo se il file è presente
         else:
-            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna" se il file non è presente
+            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna e Riavvia" se il file non è presente
 
     def save_and_restart(self):
         self.save_settings()
@@ -125,6 +126,9 @@ class AggiornaApp(tk.Tk):
     def save_settings(self):
         # Implementa la logica di salvataggio delle impostazioni qui
         pass
+
+    def chiudi_app(self):
+        self.destroy()  # Chiude tutte le finestre
 
 if __name__ == "__main__":
     app = AggiornaApp()
