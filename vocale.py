@@ -86,13 +86,16 @@ class GestioneVoci:
                 writer.writerow([nome_voce.get(), percorso_voce.get()])
 
     def carica_config(self):
-        with open('voice_config.csv', mode='r') as file:
-            csv_reader = csv.reader(file)
-            next(csv_reader)  # Skip the header row
-            for row in csv_reader:
-                if len(row) < 3:
-                    continue  # Skip rows that do not have at least 3 columns
-                self.voce_config[row[0]] = {"File Path": row[1], "Voice Enabled": row[2] == "True"}
+        try:
+            with open('voice_config.csv', mode='r') as file:
+                csv_reader = csv.reader(file)
+                next(csv_reader)  # Skip the header row
+                for row in csv_reader:
+                    if len(row) < 3:
+                        continue  # Skip rows that do not have at least 3 columns
+                    self.voce_config[row[0]] = {"File Path": row[1], "Voice Enabled": row[2] == "True"}
+        except FileNotFoundError:
+            messagebox.showerror("Errore", "File voice_config.csv non trovato!")
 
     def chiudi_app(self):
         self.master.quit()
