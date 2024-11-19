@@ -47,7 +47,7 @@ class AggiornaApp(tk.Tk):
         try:
             with open(version_file, mode='r') as file:
                 reader = csv.reader(file)
-                current_version_info = " ".join(next(reader))
+                current_version_info = "\n".join([" ".join(row) for row in list(reader)[:2]])
                 self.current_version_label.config(text=f"Versione Corrente:\n{current_version_info}")
         except Exception as e:
             self.current_version_label.config(text=f"Errore durante la lettura del file versione corrente: {str(e)}")
