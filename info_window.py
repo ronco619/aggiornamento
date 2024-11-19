@@ -4,6 +4,7 @@ import platform
 import psutil
 from PIL import Image, ImageTk
 import os
+import csv
 
 class InfoWindow:
     def __init__(self, parent):
@@ -17,7 +18,7 @@ class InfoWindow:
         self.fg_color = "#ECF0F1"
         self.root.configure(bg=self.bg_color)
 
-        self.version = "1.0.0"  # Versione del tuo software
+        self.version = self.get_software_version()  # Legge la versione software dal file
         self.image_path = os.path.expanduser("~/Immagini/wb.png")
 
         self.setup_styles()
@@ -86,6 +87,18 @@ class InfoWindow:
         for info in info_list:
             info_label = ttk.Label(section_frame, text=info, style='TLabel')
             info_label.pack(fill="x")
+
+    def get_software_version(self):
+        version_file = "/home/self/Desktop/SELF/versione.csv"
+        try:
+            with open(version_file, mode='r') as file:
+                reader = csv.reader(file)
+                next(reader)  # Salta la prima riga
+                version_info = next(reader)  # Leggi la seconda riga
+                return version_info[1]  # Restituisci il valore della versione
+        except Exception as e:
+            print(f"Errore durante la lettura del file versione: {str(e)}")
+            return "1.0.0"  # Valore predefinito in caso di errore
 
     def show(self):
         self.root.grab_set()
