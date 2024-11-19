@@ -12,13 +12,14 @@ class GestioneVoci:
         self.master.attributes('-fullscreen', True)
         self.voce_abilitata = tk.BooleanVar()
         self.voci_entries = []
+        self.voce_config = {}
 
         self.setup_ui()
         self.carica_config()
 
     def setup_ui(self):
         tk.Checkbutton(self.master, text="Abilita Funzione Voce", variable=self.voce_abilitata).pack(pady=10)
-        
+
         self.voci_frame = tk.Frame(self.master)
         self.voci_frame.pack(pady=10)
 
@@ -41,8 +42,8 @@ class GestioneVoci:
         percorso_voce_entry.insert(0, percorso_voce)
 
         tk.Button(entry_frame, text="Sfoglia", command=lambda: self.sfoglia_file(percorso_voce_entry)).pack(side=tk.LEFT, padx=5)
-        tk.Button(entry_frame, text="Riproduci", command=lambda: self.riproduci_voce(percorso_voce_entry.get())).pack(side=tk.LEFT, padx=5)
-        
+        tk.Button(entry_frame, text="Riproduci", command=lambda: self.riproduci_voce(nome_voce_entry.get())).pack(side=tk.LEFT, padx=5)
+
         self.voci_entries.append((nome_voce_entry, percorso_voce_entry))
 
     def sfoglia_file(self, entry):
@@ -51,7 +52,12 @@ class GestioneVoci:
             entry.delete(0, tk.END)
             entry.insert(0, file_path)
 
-    def riproduci_voce(self, file_path):
+    def riproduci_voce(self, nome_voce):
+        if nome_voce not in self.voce_config or not self.voce_abilitata.get():
+            messagebox.showerror("Errore", "Voce non abilitata o non trovata!")
+            return
+
+        file_path = self.voce_config[nome_voce]["File Path"]
         if not os.path.exists(file_path):
             messagebox.showerror("Errore", "File non trovato!")
             return
@@ -88,7 +94,8 @@ class GestioneVoci:
                 if rows:
                     self.voce_abilitata.set(rows[0][0] == '1')
                     for row in rows[1:]:
-                        if len(row)>= 2:
+                        if len(row) >= 2:
+                            self.voce_config[row[0]] = {"File Path": row[1], "Voice Enabled": row[2] == "True"}
                             self.aggiungi_voce_entry(row[0], row[1])
 
     def chiudi_app(self):
