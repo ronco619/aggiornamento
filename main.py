@@ -196,7 +196,7 @@ class MainApp:
         congrats_label = tk.Label(frame, text="PREMIO FEDELTA", font=self.custom_font, fg="yellow", bg="black")
         congrats_label.pack(pady=20)
 
-        premio_label = tk.Label(frame, text=f"Premio: â‚¬ {premio}", font=self.custom_font, fg="white", bg="black")
+        premio_label = tk.Label(frame, text=f"Premio: \u20ac {premio}", font=self.custom_font, fg="white", bg="black")
         premio_label.pack(pady=20)
 
         def blink():
@@ -258,7 +258,7 @@ class MainApp:
         self.name_label.pack(pady=10)
 
         balance = float(client['euro'])
-        self.balance_label = tk.Label(self.info_frame, text=f"â‚¬ {balance:.2f}", font=self.custom_font, fg="green", bg="black")
+        self.balance_label = tk.Label(self.info_frame, text=f" \u20ac  {balance:.2f}", font=self.custom_font, fg="green", bg="black")
         self.balance_label.pack(pady=10)
 
         self.recharge_button = self.create_button(self.info_frame, "RICARICA", self.start_recharge, "green")
@@ -283,9 +283,9 @@ class MainApp:
         self.name_label.pack_forget()
         self.recharge_button.pack_forget()
 
-        tk.Label(self.info_frame, text="Inserisci le banconote (Massimo â‚¬50,00)", font=self.custom_font, fg="white", bg="black").pack(pady=10)
+        tk.Label(self.info_frame, text="Inserisci le banconote (Massimo Ã¢\50,00)", font=self.custom_font, fg="white", bg="black").pack(pady=10)
 
-        self.amount_label = tk.Label(self.info_frame, text="Importo inserito: â‚¬0,00", font=self.custom_font, fg="green", bg="black")
+        self.amount_label = tk.Label(self.info_frame, text="Importo inserito:  \u20ac 0,00", font=self.custom_font, fg="green", bg="black")
         self.amount_label.pack(pady=10)
 
         self.stop_button = self.create_button(self.info_frame, "TERMINA RICARICA", self.stop_recharge, "red")
@@ -298,12 +298,12 @@ class MainApp:
 
     def on_banknote_inserted(self, amount):
         if self.recharge_amount + amount > 50.00:
-            self.amount_label.config(text=f"Importo massimo raggiunto: â‚¬50,00")
+            self.amount_label.config(text=f"Importo massimo raggiunto:  \u20ac 50,00")
             self.banknote_reader.deactivate()
 
         else:
             self.recharge_amount += amount
-            self.amount_label.config(text=f"Importo inserito: â‚¬{self.recharge_amount:.2f}")
+            self.amount_label.config(text=f"Importo inserito:  \u20ac {self.recharge_amount:.2f}")
 
     def start_recharge_timeout(self):
         self.timer_manager.start_recharge_timeout(self.stop_recharge)
