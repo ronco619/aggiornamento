@@ -21,6 +21,11 @@ from tkinter import messagebox
 
 pygame.mixer.pre_init(frequency=44100, size=-16,channels=2,buffer=4096)
 pygame.init()
+    #audio
+def play_audio(file_path):
+    pygame.mixer.music.load(file_path)
+    pygame.mixer.music.play()
+
 
 class MainApp:
     def __init__(self, master):
@@ -65,10 +70,6 @@ class MainApp:
         else:
             logging.error("Errore nell'inizializzazione del lettore RFID")
             print("Errore nell'inizializzazione del lettore RFID")
-    #audio
-    def play_audio(file_path):
-        pygame.mixer.music.load(file_path)
-        pygame.mixer.music.play()
 
     def force_fullscreen(self):
         self.master.attributes('-fullscreen', True)
@@ -148,8 +149,7 @@ class MainApp:
             else:
                 logging.info("Carta cliente normale, mostrando info cliente")
                 self.show_client_info(client)
-                #audio
-                play_audio("/home/self/Desktop/sintesi vocale/per_ricaricare.mp3")
+               
                 
         else:
             logging.info("Nuovo cliente, avviando procedura di registrazione")
@@ -173,11 +173,13 @@ class MainApp:
         return None
 
     def show_premio(self, premio):
+        play_audio("/home/self/Desktop/sintesi vocale/premio.mp3")
         self.clear_window()
         self.setup_background()
-
+        
         frame = tk.Frame(self.master, bg="black")
         frame.place(relx=0.5, rely=0.5, anchor="center")
+
 
         # Carica e mostra l'immagine
         img_path = "/home/self/Immagini/coppa oro.jpg"
@@ -232,7 +234,7 @@ class MainApp:
 
     def show_client_info(self, client):
         logging.info(f"Mostrando info per il cliente: {client['nome']} {client['cognome']}")
-
+        play_audio("/home/self/Desktop/sintesi vocale/per_ricaricare.mp3")
         # Verifica se il cliente ha un premio
         nome_completo = f"{client['nome']} {client['cognome']}"
         premio = self.check_premio(nome_completo)
@@ -271,6 +273,8 @@ class MainApp:
    
     def start_recharge(self):
         logging.info("Avvio procedura di ricarica")
+        play_audio("/home/self/Desktop/sintesi vocale/ricarica.mp3")
+
         self.timer_manager.stop_trpi()
         self.banknote_reader.set_callback(self.on_banknote_inserted)
         self.banknote_reader.activate()
@@ -306,6 +310,8 @@ class MainApp:
 
     def stop_recharge(self):
         logging.info("Terminazione procedura di ricarica")
+        play_audio("/home/self/Desktop/sintesi vocale/arr&gra.mp3")
+
         self.banknote_reader.deactivate()
         if self.current_client and self.recharge_amount > 0:
             new_balance = float(self.current_client['euro']) + self.recharge_amount
@@ -420,7 +426,7 @@ class MainApp:
 
         logging.info("Ritorno alla pagina principale")
         self.show_client_info(self.current_client)
-#fine ricevuta
+
     def get_greeting(self):
         current_hour = datetime.now().hour
         if 5 <= current_hour < 12:
@@ -432,11 +438,14 @@ class MainApp:
 
     def setup_new_client_ui(self, uid):
         logging.info(f"Avvio procedura di registrazione per nuovo cliente. UID: {uid}")
+        play_audio("/home/self/Desktop/sintesi vocale/nome.mp3")
         self.timer_manager.stop_trpi()
         self.registration_window = ClienteNuovo(self.master, uid, self.db_manager, self.on_registration_complete, self.timer_manager)
 
     def on_registration_complete(self):
         logging.info("Registrazione nuovo cliente completata")
+        play_audio("/home/self/Desktop/sintesi vocale/registrato.mp3")
+
         self.registration_window = None
         self.return_to_main_page()
 
