@@ -16,10 +16,11 @@ from threading import Timer
 
 import csv
 import subprocess
-
+import pygame
 from tkinter import messagebox
 
-
+pygame.mixer.pre_init(frequency=44100, size=-16,channels=2,buffer=4096)
+pygame.init()
 
 class MainApp:
     def __init__(self, master):
@@ -64,6 +65,10 @@ class MainApp:
         else:
             logging.error("Errore nell'inizializzazione del lettore RFID")
             print("Errore nell'inizializzazione del lettore RFID")
+    #audio
+    def play_audio(file_path):
+        pygame.mixer.music.load(file_path)
+        pygame.mixer.music.play()
 
     def force_fullscreen(self):
         self.master.attributes('-fullscreen', True)
@@ -71,8 +76,6 @@ class MainApp:
     def exit_fullscreen(self, event=None):
         self.master.attributes('-fullscreen', False)
         self.master.destroy()
-
-    # ... rest of the code ...
 
     def start_backup_schedule(self):
         try:
@@ -133,6 +136,7 @@ class MainApp:
         else:
             self.master.after(100, self.check_rfid)
 
+
     def process_card(self, uid):
         logging.info(f"Carta letta: UID = {uid}")
         client = self.db_manager.get_client_by_uid(uid)
@@ -144,6 +148,9 @@ class MainApp:
             else:
                 logging.info("Carta cliente normale, mostrando info cliente")
                 self.show_client_info(client)
+                #audio
+                play_audio("/home/self/Desktop/sintesi vocale/per_ricaricare.mp3")
+                
         else:
             logging.info("Nuovo cliente, avviando procedura di registrazione")
             self.setup_new_client_ui(uid)
@@ -152,8 +159,6 @@ class MainApp:
         logging.info("Apertura del menu di configurazione")
         config_menu = ConfigMenu(self.master, self.return_to_main_page)
         config_menu.show_config_menu()
-# inizio modifica premio
-
 
     def check_premio(self, nome_cliente):
         premio_file = '/home/self/premi.csv'
@@ -189,7 +194,7 @@ class MainApp:
         congrats_label = tk.Label(frame, text="PREMIO FEDELTA", font=self.custom_font, fg="yellow", bg="black")
         congrats_label.pack(pady=20)
 
-        premio_label = tk.Label(frame, text=f"Premio: € {premio}", font=self.custom_font, fg="white", bg="black")
+        premio_label = tk.Label(frame, text=f"Premio: â‚¬ {premio}", font=self.custom_font, fg="white", bg="black")
         premio_label.pack(pady=20)
 
         def blink():
@@ -251,7 +256,7 @@ class MainApp:
         self.name_label.pack(pady=10)
 
         balance = float(client['euro'])
-        self.balance_label = tk.Label(self.info_frame, text=f"€ {balance:.2f}", font=self.custom_font, fg="green", bg="black")
+        self.balance_label = tk.Label(self.info_frame, text=f"â‚¬ {balance:.2f}", font=self.custom_font, fg="green", bg="black")
         self.balance_label.pack(pady=10)
 
         self.recharge_button = self.create_button(self.info_frame, "RICARICA", self.start_recharge, "green")
@@ -263,7 +268,7 @@ class MainApp:
         self.timer_manager.start_trpi(self.trpi_label, self.return_to_main_page)
 
         self.current_client = client
-#    
+   
     def start_recharge(self):
         logging.info("Avvio procedura di ricarica")
         self.timer_manager.stop_trpi()
@@ -274,9 +279,9 @@ class MainApp:
         self.name_label.pack_forget()
         self.recharge_button.pack_forget()
 
-        tk.Label(self.info_frame, text="Inserisci le banconote (Massimo €50,00)", font=self.custom_font, fg="white", bg="black").pack(pady=10)
+        tk.Label(self.info_frame, text="Inserisci le banconote (Massimo â‚¬50,00)", font=self.custom_font, fg="white", bg="black").pack(pady=10)
 
-        self.amount_label = tk.Label(self.info_frame, text="Importo inserito: €0,00", font=self.custom_font, fg="green", bg="black")
+        self.amount_label = tk.Label(self.info_frame, text="Importo inserito: â‚¬0,00", font=self.custom_font, fg="green", bg="black")
         self.amount_label.pack(pady=10)
 
         self.stop_button = self.create_button(self.info_frame, "TERMINA RICARICA", self.stop_recharge, "red")
@@ -289,16 +294,16 @@ class MainApp:
 
     def on_banknote_inserted(self, amount):
         if self.recharge_amount + amount > 50.00:
-            self.amount_label.config(text=f"Importo massimo raggiunto: €50,00")
+            self.amount_label.config(text=f"Importo massimo raggiunto: â‚¬50,00")
             self.banknote_reader.deactivate()
 
         else:
             self.recharge_amount += amount
-            self.amount_label.config(text=f"Importo inserito: €{self.recharge_amount:.2f}")
+            self.amount_label.config(text=f"Importo inserito: â‚¬{self.recharge_amount:.2f}")
 
     def start_recharge_timeout(self):
         self.timer_manager.start_recharge_timeout(self.stop_recharge)
-#
+
     def stop_recharge(self):
         logging.info("Terminazione procedura di ricarica")
         self.banknote_reader.deactivate()
