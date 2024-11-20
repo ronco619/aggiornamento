@@ -63,28 +63,7 @@ class MainApp:
         
         self.config_card = {"nome": "CONFIGURAZIONE", "cognome": "123456"}
 #
-        self.rfid_reader=None
-        self.initialize_rfid_reader()
 
-    def initialize_rfid_reader(self):
-        max_attempts = 5  # Numero massimo di tentativi
-        for attempt in range(max_attempts):
-            try:
-                self.rfid_reader = RFIDReader()
-                if self.rfid_reader.setup():
-                    logging.info("Lettore RFID inizializzato correttamente")
-                    self.setup_main_page()
-                    self.print_all_clients()  # Stampa tutti i clienti all'avvio
-                    break
-                else:
-                    raise Exception("Errore nell'inizializzazione del lettore RFID")
-            except Exception as e:
-                logging.error(f"Tentativo {attempt + 1}: {e}")
-                if attempt == max_attempts - 1:
-                    logging.error("Errore nell'inizializzazione del lettore RFID dopo diversi tentativi")
-                    print("Errore nell'inizializzazione del lettore RFID dopo diversi tentativi")
-                else:
-                    logging.info("Riprovo l'inizializzazione del lettore RFID...")
 #       
         if self.rfid_reader.setup():
             self.setup_main_page()
