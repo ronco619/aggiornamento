@@ -84,7 +84,7 @@ class ConfigMenu:
             ("CONFIGURAZIONI", self.show_configurations),
             ("TIMER", self.open_timer_menu),
             ("INFO", self.show_info_window),
-            ("", self.libero),
+            ("PROMOZIONI", self.manage_promotions),
             ("RIAVVIO", self.reboot_system),
             ("ESCI", self.close_config_menu)   
         ]
@@ -277,12 +277,12 @@ class ConfigMenu:
             
             ("GESTIONE BCK", self.manage_backups),
             ("PAGAMENTI", self.manage_payments),
-            ("PROMOZIONI", self.manage_promotions),
             ("GESTIONE CREDITO", self.manage_credit),
             ("AGGIORNAMENTI", self.check_updates),
             ("MESS. VOCALI", self.vocale),
             ("STAMPANTE",self.config_stampante),
-            ("INDIETRO", config_window.destroy)
+            ("INDIETRO", config_window.destroy),
+            ("", self.libero)
         ]
 
         for i, (text, command) in enumerate(config_buttons):
@@ -401,7 +401,7 @@ class ConfigMenu:
     def show_absolute_totals(self):
         try:
             total = self.calculate_total_from_csv()
-            self.show_total_window("Totali Assoluti", f"Totale Assoluto: â‚¬{total:.2f}")
+            self.show_total_window("Totali Assoluti", f"Totale Assoluto: Ã¢â€šÂ¬{total:.2f}")
         except Exception as e:
             self.show_error_window(str(e))
 
@@ -434,7 +434,7 @@ class ConfigMenu:
         # Mese corrente
         current_month, current_total = monthly_totals[0]
         current_month_label = ttk.Label(content_frame, 
-                                        text=f"{current_month.strftime('%B')}: â‚¬{current_total:.2f}", 
+                                        text=f"{current_month.strftime('%B')}: Ã¢â€šÂ¬{current_total:.2f}", 
                                         style='CurrentDay.TLabel')
         current_month_label.pack(pady=(0, 20))
 
@@ -449,7 +449,7 @@ class ConfigMenu:
             month_label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
 
             total_label = ttk.Label(grid_frame, 
-                                    text=f"â‚¬{total:.2f}", 
+                                    text=f"Ã¢â€šÂ¬{total:.2f}", 
                                     style='GridContent.TLabel')
             total_label.grid(row=i, column=1, padx=10, pady=5, sticky="e")
 
@@ -506,7 +506,7 @@ class ConfigMenu:
         
         current_day, current_total = daily_totals[0]
         current_day_label = ttk.Label(content_frame, 
-                                      text=f"Oggi, {current_day.strftime('%d %B')} - {current_day.strftime('%A')}: â‚¬{current_total:.2f}", 
+                                      text=f"Oggi, {current_day.strftime('%d %B')} - {current_day.strftime('%A')}: Ã¢â€šÂ¬{current_total:.2f}", 
                                       style='CurrentDay.TLabel')
         current_day_label.pack(pady=(0, 20))
 
@@ -521,7 +521,7 @@ class ConfigMenu:
             day_label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
 
             total_label = ttk.Label(grid_frame, 
-                                    text=f"â‚¬{total:.2f}", 
+                                    text=f"Ã¢â€šÂ¬{total:.2f}", 
                                     style='GridContent.TLabel')
             total_label.grid(row=i, column=1, padx=10, pady=5, sticky="e")
 
@@ -567,11 +567,11 @@ class ConfigMenu:
         except FileNotFoundError:
             raise Exception("File transactions.csv non trovato in /home/self/")
         except KeyError:
-            raise Exception("Il campo 'Valore' non Ã¨ presente nel file CSV")
+            raise Exception("Il campo 'Valore' non ÃƒÂ¨ presente nel file CSV")
         except ValueError:
             raise Exception("Errore nella conversione del valore a numero")
         except Exception as e:
-            raise Exception(f"Si Ã¨ verificato un errore durante la lettura del file: {str(e)}")
+            raise Exception(f"Si ÃƒÂ¨ verificato un errore durante la lettura del file: {str(e)}")
         return total
 
     def calculate_monthly_total(self, year, month):
@@ -607,7 +607,7 @@ class ConfigMenu:
         error_window.configure(bg=self.bg_color)
         
         error_label = ttk.Label(error_window, 
-                                text=f"Si Ã¨ verificato un errore:\n{error_message}", 
+                                text=f"Si ÃƒÂ¨ verificato un errore:\n{error_message}", 
                                 style='Title.TLabel',
                                 wraplength=380)
         error_label.pack(expand=True, fill="both", padx=20, pady=20)
@@ -676,7 +676,7 @@ class ConfigMenu:
             to_date = datetime.strptime(to_cal.get_date(), '%d/%m/%Y').date()
 
             if from_date > to_date:
-                messagebox.showerror("Errore", "La data 'Da' non puÃ² essere successiva alla data 'A'")
+                messagebox.showerror("Errore", "La data 'Da' non puÃƒÂ² essere successiva alla data 'A'")
                 return
 
             for cal in [from_cal, to_cal]:
@@ -706,14 +706,14 @@ class ConfigMenu:
             to_date = datetime.strptime(to_cal.get_date(), '%d/%m/%Y').date()
 
             if from_date > to_date:
-                messagebox.showerror("Errore", "La data 'Da' non puÃ² essere successiva alla data 'A'")
+                messagebox.showerror("Errore", "La data 'Da' non puÃƒÂ² essere successiva alla data 'A'")
                 return
 
             try:
                 total = self.calculate_custom_period_total(from_date, to_date)
-                result_label.config(text=f"Totale per il periodo selezionato:\n                         â‚¬{total:.2f}")
+                result_label.config(text=f"Totale per il periodo selezionato:\n                         Ã¢â€šÂ¬{total:.2f}")
             except Exception as e:
-                messagebox.showerror("Errore", f"Si Ã¨ verificato un errore: {str(e)}")
+                messagebox.showerror("Errore", f"Si ÃƒÂ¨ verificato un errore: {str(e)}")
 
         button_frame = ttk.Frame(content_frame, style='Main.TFrame')
         button_frame.pack(pady=30)
@@ -747,11 +747,11 @@ class ConfigMenu:
         to_date = datetime.strptime(to_cal.get_date(), '%d/%m/%Y').date()
 
         if from_date > to_date:
-            messagebox.showerror("Errore", "La data 'Da' non puÃ² essere successiva alla data 'A'")
+            messagebox.showerror("Errore", "La data 'Da' non puÃƒÂ² essere successiva alla data 'A'")
         return
 
         total = self.calculate_custom_period_total(from_date, to_date)
-        result_label.config(text=f"Totale per il periodo selezionato: â‚¬{total:.2f}")
+        result_label.config(text=f"Totale per il periodo selezionato: Ã¢â€šÂ¬{total:.2f}")
 
         calculate_button = ttk.Button(content_frame, text="Calcola Totali", command=calculate_totals, style='LargeMenu.TButton')
         calculate_button.pack(pady=20)
