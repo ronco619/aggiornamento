@@ -32,6 +32,7 @@ class MainApp:
         self.master = master
         self.master.title("Sistema di Controllo Accessi")
         self.master.geometry("1024x800")
+        logging.info("Chiamata force_fullscreen() in __init__")
         self.force_fullscreen()
         self.master.bind('<Escape>', self.exit_fullscreen)
         self.master.config(cursor="none")  # Imposta il cursore su "none" all'avvio
@@ -72,9 +73,11 @@ class MainApp:
             print("Errore nell'inizializzazione del lettore RFID")
 
     def force_fullscreen(self):
+        logging.info("Impostazione modalità fullscreen in force_fullscreen()")
         self.master.attributes('-fullscreen', True)
 
     def exit_fullscreen(self, event=None):
+        logging.info("Uscita dalla modalità fullscreen in exit_fullscreen()")
         self.master.attributes('-fullscreen', False)
         self.master.destroy()
 
