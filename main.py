@@ -31,7 +31,7 @@ class MainApp:
     def __init__(self, master):
         self.master = master
         self.master.title("Sistema di Controllo Accessi")
-        self.master.geometry("1024x900")
+        self.master.geometry("1024x800")
         self.force_fullscreen()
         self.master.bind('<Escape>', self.exit_fullscreen)
         self.master.config(cursor="none")  # Imposta il cursore su "none" all'avvio
@@ -63,7 +63,6 @@ class MainApp:
         
         self.config_card = {"nome": "CONFIGURAZIONE", "cognome": "123456"}
 #
-
 #       
         if self.rfid_reader.setup():
             self.setup_main_page()
@@ -284,7 +283,7 @@ class MainApp:
         self.name_label.pack_forget()
         self.recharge_button.pack_forget()
 
-        tk.Label(self.info_frame, text="Inserisci le banconote (Massimo Ã¢\50,00)", font=self.custom_font, fg="white", bg="black").pack(pady=10)
+        tk.Label(self.info_frame, text="Inserisci le banconote ", font=self.custom_font, fg="white", bg="black").pack(pady=10)
 
         self.amount_label = tk.Label(self.info_frame, text="Importo inserito:  \u20ac 0,00", font=self.custom_font, fg="green", bg="black")
         self.amount_label.pack(pady=10)
