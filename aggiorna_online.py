@@ -37,6 +37,22 @@ class AggiornaApp(tk.Tk):
         self.close_button = tk.Button(self, text="Chiudi", command=self.chiudi_app, font=("Arial", 12))
         self.close_button.pack(pady=20)
 
+        # Lista dei passaggi
+        self.steps_frame = tk.Frame(self, bg="white")
+        self.steps_frame.pack(pady=20)
+        self.steps = [
+            "1. Controllo aggiornamenti",
+            "2. Creazione backup",
+            "3. Applicazione aggiornamenti",
+            "4. Ripristino dati",
+            "5. Completato"
+        ]
+        self.step_labels = []
+        for step in self.steps:
+            label = tk.Label(self.steps_frame, text=step, bg="white", font=("Arial", 12))
+            label.pack(anchor="w")
+            self.step_labels.append(label)
+
         self.github_repo = "https://api.github.com/repos/ronco619/aggiornamento/contents/"
         self.download_path = "/home/self/Desktop/AGGIORNAMENTI"
         self.self_path = "/home/self/Desktop/SELF"
@@ -66,6 +82,14 @@ class AggiornaApp(tk.Tk):
         self.display_current_version()
         self.check_version_file()
 
+    def highlight_step(self, step_index):
+        for i, label in enumerate(self.step_labels):
+            if i == step_index:
+                label.config(bg="yellow")
+            else:
+                label.config(bg="white")
+        self.update_idletasks()
+
     def display_current_version(self):
         version_file = os.path.join(self.self_path, "versione.csv")
         try:
@@ -79,6 +103,7 @@ class AggiornaApp(tk.Tk):
     def check_updates(self):
         self.status_label.config(text="Controllo aggiornamenti in corso...")
         self.progress.start()
+        self.highlight_step(0)
         threading.Thread(target=self.download_from_github).start()
 
     def download_from_github(self):
@@ -118,12 +143,14 @@ class AggiornaApp(tk.Tk):
 
     def apply_updates_and_restart(self):
         self.status_label.config(text="Creazione backup in corso...")
+        self.highlight_step(1)
         backup_file = self.create_backup()
         if not backup_file:
             self.status_label.config(text="Errore durante la creazione del backup. Aggiornamento annullato.")
             return
 
         self.status_label.config(text="Applicazione degli aggiornamenti in corso...")
+        self.highlight_step(2)
         try:
             if os.path.exists(self.self_path):
                 shutil.rmtree(self.self_path)
@@ -131,12 +158,14 @@ class AggiornaApp(tk.Tk):
             os.makedirs(self.download_path)
             self.status_label.config(text="Aggiornamenti applicati. Ripristino backup in corso...")
             
+            self.highlight_step(3)
             self.restore_backup(backup_file)
             
             self.status_label.config(text="Aggiornamenti applicati e backup ripristinato con successo.")
+            self.highlight_step(4)
             self.update_button.pack_forget()
             self.display_current_version()
-            self.save_and_restart()
+            self.after(3000, self.save_and_restart)  # Attendi 3 secondi prima di riavviare
         except Exception as e:
             self.status_label.config(text=f"Errore durante l'applicazione degli aggiornamenti: {str(e)}")
             os.makedirs(self.download_path)
@@ -188,4 +217,4 @@ class AggiornaApp(tk.Tk):
 
 if __name__ == "__main__":
     app = AggiornaApp()
-    app.mainloop()          
+    app.mainloop()
