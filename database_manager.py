@@ -3,13 +3,14 @@ import os
 import logging
 from datetime import datetime
 
-logging.basicConfig(filename='database.log', level=logging.DEBUG, 
-                    format='%(asctime)s - %(levelname)s - %(message)s')
+#logging.basicConfig(filename='database.log', level=logging.DEBUG, 
+ #                   format='%(asctime)s - %(levelname)s - %(message)s')
 
 class DatabaseManager:
     def __init__(self, clients_file='clienti.csv', transactions_file='transactions.csv'):
         self.clients_file = clients_file
         self.transactions_file = transactions_file
+
         if not os.path.exists(self.clients_file):
             self.create_empty_db(self.clients_file, ['nome', 'cognome', 'uid', 'euro', 'data'])
         if not os.path.exists(self.transactions_file):

@@ -6,8 +6,6 @@ from tkinter import ttk
 from tkcalendar import DateEntry
 import tkinter.messagebox as messagebox
 import traceback
-import tkinter as tk
-
 
 class PromoRicaricaApp:
     def __init__(self, master):
@@ -21,22 +19,21 @@ class PromoRicaricaApp:
         master.config(bg='lightgray')
         master.bind('<Escape>', self.toggle_fullscreen)
         
-        self.left_frame = None  # Aggiungi questa riga
+        self.left_frame = None 
         self.ricarica_values = ["0" for _ in range(10)]
-        self.disattivato_var = tk.BooleanVar()
-        self.attiva_var = tk.BooleanVar()
+        self.current_ricarica_index = 0
+
+        self.attivazione_var = tk.StringVar(value="disattivato")
+        self.tipo_promo_var = tk.StringVar(value="ricarica")
         self.tempo_var = tk.BooleanVar()
-        self.percentuale_var = tk.BooleanVar()
-        self.a_ricarica_var = tk.BooleanVar()
         
         self.percentuale_entry = tk.StringVar(value="13")
         self.ora_da = tk.StringVar(value="00:00")
         self.ora_a = tk.StringVar(value="23:59")
-        
-        self.ricarica_values = ["0"] * 10
-        self.current_ricarica_index = 0
 
         self.current_focus = None
+        self.ricarica_labels = []
+        self.ricarica_value_labels = []
 
         self.create_widgets()
         self.leggi_parametri_salvati()
@@ -52,10 +49,10 @@ class PromoRicaricaApp:
             etichetta = ttk.Label(
                 frame_coppia, 
                 text=str(valore),
-                style='Medium.TLabel',
-                name=f'label{i}'
+                style='Medium.TLabel'
             )
             etichetta.pack(side=tk.LEFT, padx=(0, 10))
+            self.ricarica_labels.append(etichetta)
 
             frame_valore = ttk.Frame(
                 frame_coppia,
@@ -71,49 +68,35 @@ class PromoRicaricaApp:
                 style='Valore.TLabel'
             )
             etichetta_valore.pack()
-
-            # Frame per visualizzare il valore corrispondente
-            frame_valore = ttk.Frame(
-                frame_coppia,
-                style='Valore.TFrame',
-                width=100,
-                height=25
-            )
-            frame_valore.pack(side=tk.LEFT)
-
-            # Etichetta dentro il frame_valore
-            etichetta_valore = ttk.Label(
-                frame_valore,
-                text=self.ricarica_values[i],
-                style='Valore.TLabel'
-            )
-            etichetta_valore.pack()
+            self.ricarica_value_labels.append(etichetta_valore)
 
     def create_widgets(self):
-        # Main frame
         main_frame = ttk.Frame(self.master, style='TFrame')
         main_frame.place(x=0, y=0, width=self.width, height=self.height)
 
-        # Left frame (for controls)
         left_frame = ttk.Frame(main_frame)
         left_frame.place(x=10, y=10, width=self.width*0.45, height=self.height-20)
 
-        # Right frame (for numeric keypad)
         right_frame = ttk.Frame(main_frame)
         right_frame.place(x=self.width*0.45+20, y=10, width=self.width*0.55-30, height=self.height-20)
 
-        # Left frame widgets
         y_offset = 10
-        ttk.Checkbutton(left_frame, text="DISATTIVATO", variable=self.disattivato_var, style='Large.TCheckbutton').place(x=5, y=y_offset, height=20)
+        self.disattivato_button = ttk.Radiobutton(left_frame, text="DISATTIVATO", variable=self.attivazione_var, value="disattivato", style='Large.TRadiobutton', command=self.update_attivazione)
+        self.disattivato_button.place(x=5, y=y_offset, height=20)
         y_offset += 30
-        ttk.Checkbutton(left_frame, text="ATTIVA", variable=self.attiva_var, style='Large.TCheckbutton').place(x=5, y=y_offset, height=20)
+        self.attiva_button = ttk.Radiobutton(left_frame, text="ATTIVA", variable=self.attivazione_var, value="attiva", style='Large.TRadiobutton', command=self.update_attivazione)
+        self.attiva_button.place(x=5, y=y_offset, height=20)
         y_offset += 30
         ttk.Checkbutton(left_frame, text="TEMPO", variable=self.tempo_var, style='Large.TCheckbutton').place(x=5, y=y_offset, height=20)
         y_offset += 30
-        ttk.Checkbutton(left_frame, text="A RICARICA", variable=self.a_ricarica_var, style='Large.TCheckbutton').place(x=5, y=y_offset, height=20)
+
+        self.a_ricarica_button = ttk.Radiobutton(left_frame, text="A RICARICA", variable=self.tipo_promo_var, value="ricarica", style='Large.TRadiobutton', command=self.update_tipo_promo)
+        self.a_ricarica_button.place(x=5, y=y_offset, height=20)
+        y_offset += 30
+        self.percentuale_button = ttk.Radiobutton(left_frame, text="PERCENTUALE", variable=self.tipo_promo_var, value="percentuale", style='Large.TRadiobutton', command=self.update_tipo_promo)
+        self.percentuale_button.place(x=5, y=y_offset, height=20)
         y_offset += 30
 
-    # Aggiungiamo la colonna dei valori di ricarica
         self.create_ricarica_values_column(left_frame)
         ttk.Label(left_frame, text="DA:", style='Large.TLabel').place(x=10, y=y_offset, height=40)
         self.cal_da = DateEntry(left_frame, width=12, background='darkblue', foreground='white', borderwidth=2, date_pattern='dd/mm/yyyy', font=('Arial', 14))
@@ -129,13 +112,10 @@ class PromoRicaricaApp:
         self.entry_ora_a.place(x=260, y=y_offset, height=40)
         y_offset += 50
 
-        ttk.Checkbutton(left_frame, text="PERCENTUALE", variable=self.percentuale_var, style='Large.TCheckbutton').place(x=10, y=y_offset, height=40)
         self.entry_percentuale = ttk.Entry(left_frame, textvariable=self.percentuale_entry, width=5, font=('Arial', 12))
         self.entry_percentuale.place(x=180, y=y_offset, height=40)
         ttk.Label(left_frame, text="%", style='Large.TLabel').place(x=250, y=y_offset, height=40)
         y_offset += 50
-
-
 
         ttk.Label(left_frame, text="Ricarica €:", style='Large.TLabel').place(x=10, y=300, height=40)
         self.ricarica_label = ttk.Label(left_frame, text="5", style='XLarge.TLabel')
@@ -144,20 +124,18 @@ class PromoRicaricaApp:
         self.ricarica_entry.place(x=190, y=300, height=40)
         ttk.Button(left_frame, text="<", command=self.previous_ricarica, width=3, style='Medium.TButton').place(x=280, y=300, height=40)
         ttk.Button(left_frame, text=">", command=self.next_ricarica, width=3, style='Medium.TButton').place(x=330, y=300, height=40)
-        # Right frame widgets (Numeric Keypad)
+
         self.create_numeric_keypad(right_frame)
 
-        # Bottom buttons
         ttk.Button(main_frame, text="Salva", command=self.salva, width=15, style='Large.TButton').place(x=10, y=self.height-100, height=80)
         ttk.Button(main_frame, text="Chiudi", command=self.chiudi, width=15, style='Large.TButton').place(x=250, y=self.height-100, height=80)
 
-        # Bind focus events
         self.entry_ora_da.bind("<FocusIn>", self.set_focus)
         self.entry_ora_a.bind("<FocusIn>", self.set_focus)
         self.entry_percentuale.bind("<FocusIn>", self.set_focus)
         self.ricarica_entry.bind("<FocusIn>", self.set_focus)
 
-        self.left_frame = left_frame  # Aggiungi questa riga dopo aver creato left_frame
+        self.left_frame = left_frame
 
     def create_numeric_keypad(self, parent):
         buttons = [
@@ -204,7 +182,7 @@ class PromoRicaricaApp:
     def save_current_ricarica(self):
         value = self.ricarica_entry.get().strip()
         self.ricarica_values[self.current_ricarica_index] = value if value else "0"
-#
+
     def update_ricarica_display(self):
         valori_ricarica = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50]
         valore_corrente = valori_ricarica[self.current_ricarica_index]
@@ -212,21 +190,19 @@ class PromoRicaricaApp:
         self.ricarica_entry.delete(0, tk.END)
         self.ricarica_entry.insert(0, self.ricarica_values[self.current_ricarica_index])
 
-        for i, valore in enumerate(valori_ricarica):
-            # Update the main label style
-            etichetta = self.left_frame.children.get(f'label{i}')
-            if etichetta:
-                if valore == valore_corrente:
-                    etichetta.configure(style='HighlightedMedium.TLabel')
-                else:
-                    etichetta.configure(style='Medium.TLabel')
+        for i, (etichetta, etichetta_valore) in enumerate(zip(self.ricarica_labels, self.ricarica_value_labels)):
+            if valori_ricarica[i] == valore_corrente:
+                etichetta.configure(style='HighlightedMedium.TLabel')
+            else:
+                etichetta.configure(style='Medium.TLabel')
+            etichetta_valore.config(text=self.ricarica_values[i])
 
-            # Update the corresponding value label
-            frame_valore = etichetta.master.children.get(f'!frame')
-            etichetta_valore = frame_valore.children.get(f'!label')
-            if etichetta_valore:
-                etichetta_valore.config(text=self.ricarica_values[i])
-                
+    def update_attivazione(self):
+        pass  # Non è più necessario gestire manualmente l'esclusione reciproca
+
+    def update_tipo_promo(self):
+        pass  # Non è più necessario gestire manualmente l'esclusione reciproca
+
     def salva(self):
         self.save_current_ricarica()
         self.salva_promo_tempo()
@@ -234,7 +210,7 @@ class PromoRicaricaApp:
 
     def salva_promo_tempo(self):
         file_path = os.path.expanduser('~/promo_tempo.csv')
-        funzione_globale = "no" if self.disattivato_var.get() else "si"
+        funzione_globale = "no" if self.attivazione_var.get() == "disattivato" else "si"
         tempo_attivo = "si" if self.tempo_var.get() else "no"
         data_ini = self.cal_da.get_date().strftime("%d/%m/%Y")
         ora_ini = self.ora_da.get()
@@ -253,10 +229,10 @@ class PromoRicaricaApp:
 
     def salva_promo_attivo(self):
         file_path = os.path.expanduser('~/promo_attivo.csv')
-        funzione_globale = "no" if self.disattivato_var.get() else "si"
-        promo_attiva = "si" if self.attiva_var.get() else "no"
-        percent_attiva = "si" if self.percentuale_var.get() else "no"
-        ricarica_attiva = "si" if self.a_ricarica_var.get() else "no"
+        funzione_globale = "no" if self.attivazione_var.get() == "disattivato" else "si"
+        promo_attiva = "si" if self.attivazione_var.get() == "attiva" else "no"
+        percent_attiva = "si" if self.tipo_promo_var.get() == "percentuale" else "no"
+        ricarica_attiva = "si" if self.tipo_promo_var.get() == "ricarica" else "no"
         percentuale = self.percentuale_entry.get()
 
         data = [funzione_globale, promo_attiva, percent_attiva, percentuale, ricarica_attiva] + self.ricarica_values
@@ -276,7 +252,6 @@ class PromoRicaricaApp:
     def leggi_parametri_salvati(self):
         self.leggi_promo_tempo()
         self.leggi_promo_attivo()
-        
 
     def leggi_promo_tempo(self):
         file_path = os.path.expanduser('~/promo_tempo.csv')
@@ -286,7 +261,7 @@ class PromoRicaricaApp:
                 next(reader)  # Salta l'intestazione
                 row = next(reader, None)
                 if row:
-                    self.disattivato_var.set(row[0] == 'no')
+                    self.attivazione_var.set("attiva" if row[0] == 'si' else "disattivato")
                     self.tempo_var.set(row[1] == 'si')
                     self.cal_da.set_date(datetime.strptime(row[2], "%d/%m/%Y"))
                     self.ora_da.set(row[3])
@@ -306,11 +281,9 @@ class PromoRicaricaApp:
                 row = next(reader, None)
                 if row:
                     print(f"Row letto da promo_attivo.csv: {row}")
-                    self.disattivato_var.set(row[0] == 'no')
-                    self.attiva_var.set(row[1] == 'si')
-                    self.percentuale_var.set(row[2] == 'si')
+                    self.attivazione_var.set("attiva" if row[1] == 'si' else "disattivato")
+                    self.tipo_promo_var.set("percentuale" if row[2] == 'si' else "ricarica")
                     self.percentuale_entry.set(row[3])
-                    self.a_ricarica_var.set(row[4] == 'si')
                     self.ricarica_values = row[5:]
                     self.update_ricarica_display()
         except FileNotFoundError:
@@ -334,16 +307,18 @@ def main():
     style.configure('Medium.TButton', font=('Arial', 16))
     style.configure('Large.TButton', font=('Arial', 18))
     style.configure('XLarge.TButton', font=('Arial', 22))
+    style.configure('TRadiobutton', font=('Arial', 10))
+    style.configure('Large.TRadiobutton', font=('Arial', 12))
     style.configure('TCheckbutton', font=('Arial', 10))
     style.configure('Large.TCheckbutton', font=('Arial', 12))
     style.configure('TLabel', font=('Arial', 14))
     style.configure('Large.TLabel', font=('Arial', 16))
     style.configure('XLarge.TLabel', font=('Arial', 18))
     style.configure('TEntry', font=('Arial', 14))
+    style.configure('HighlightedMedium.TLabel', font=('Arial', 16), background='yellow')
     app = PromoRicaricaApp(root)
     root.protocol("WM_DELETE_WINDOW", app.chiudi)
-    style.configure('HighlightedMedium.TLabel', font=('Arial', 16), background='yellow')
     root.mainloop()
-    
+
 if __name__ == "__main__":
     main()

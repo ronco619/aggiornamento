@@ -13,7 +13,7 @@ class VirtualKeyboard(tk.Toplevel):
         
         # Imposta la larghezza e l'altezza della finestra
         window_width = 1024
-        window_height = 400
+        window_height = 700
         
         # Calcola la posizione x e y per centrare la finestra orizzontalmente
         # e posizionarla nella parte inferiore dello schermo
@@ -226,7 +226,7 @@ class ClientiWindow(tk.Tk):
 
     def load_data(self):
         try:
-            with open('/home/self/clienti.csv', 'r') as file:
+            with open('/home/self/Desktop/SELF/clienti.csv', 'r') as file:
                 reader = csv.reader(file)
                 headers = next(reader)
                 for i, row in enumerate(reader):
@@ -273,7 +273,7 @@ class ClientiWindow(tk.Tk):
     def save_data(self):
         if messagebox.askyesno("Conferma", "Sei sicuro di voler salvare le modifiche?"):
             try:
-                with open('/home/self/clienti.csv', 'w', newline='') as file:
+                with open('/home/self/Desktop/SELF/clienti.csv', 'w', newline='') as file:
                     writer = csv.writer(file)
                     writer.writerow(["nome", "cognome", "uid", "euro", "data"])
                     for child in self.table.get_children():

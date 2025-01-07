@@ -69,6 +69,7 @@ class TimerManager:
         self.trpi_label = None
         self.trpi_callback = None
 
+
     def update_trpi(self):
         if not self.trpi_active or not self.trpi_label or not self.trpi_label.winfo_exists():
             return
@@ -156,6 +157,10 @@ class TimerManager:
             self.trto_after_id = None
         self.trto_label = None
         self.trto_callback = None
+
+    def reset_trto(self):
+        self.stop_trto()
+        self.trto_remaining = self.trto_default
 
     def update_trto(self):
         if not self.trto_active:

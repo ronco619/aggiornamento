@@ -3,13 +3,14 @@ from tkinter import filedialog, messagebox
 import zipfile
 import os
 from datetime import datetime
+import shutil
 
 # Percorsi dei file da includere nel backup
 FILES_TO_BACKUP = [
-    "/home/self/clienti.csv",
+    "/home/self/Desktop/SELF/clienti.csv",  #questo file
     "/home/self/credito.csv",
     "/home/self/config_scontrino.csv",
-    "/home/self/transactions.csv",
+    "/home/self/Desktop/SELF/transactions.csv", #questo file
     "/home/self/config_stampante.csv",
     "/home/self/premi.csv",
     "/home/self/timer_settings.json",
@@ -44,7 +45,13 @@ def recupera_backup():
         return
     try:
         with zipfile.ZipFile(filepath, 'r') as backup_zip:
-            backup_zip.extractall("/home/self/")
+            for file in backup_zip.namelist():
+                source = backup_zip.extract(file, "/tmp")
+                if file in ["clienti.csv", "transactions.csv"]:
+                    destination = f"/home/self/Desktop/SELF/{file}"
+                else:
+                    destination = f"/home/self/{file}"
+                shutil.move(source, destination)
         messagebox.showinfo("Recupero", f"Backup recuperato con successo: {filepath}")
     except Exception as e:
         messagebox.showerror("Errore", f"Errore durante il recupero del backup: {str(e)}")
@@ -56,7 +63,7 @@ def esci():
 # Configurazione della finestra principale
 root = tk.Tk()
 root.title("Gestione Backup")
-root.attributes('-fullscreen', True)  # Apri in modalità fullscreen
+root.attributes('-fullscreen', True)  # Apri in modalit� fullscreen
 root.geometry("1024x800")
 
 # Creazione dei pulsanti

@@ -35,7 +35,7 @@ class CurrencyInput:
             '7', '8', '9',
             '4', '5', '6',
             '1', '2', '3',
-            '0', ',', 'C'
+            '0', '.', 'C'
         ]
         
         row = 0
@@ -101,13 +101,13 @@ class CurrencyInput:
     def format_amount(self, amount_str):
         try:
             # Replace comma with dot for decimal parsing
-            amount_str = amount_str.replace(',', '.')
+            amount_str = amount_str.replace('.', '.')
             # Convert to Decimal and round to 2 decimal places
             amount = Decimal(amount_str).quantize(Decimal('0.01'), rounding=ROUND_DOWN)
             # Convert back to string with comma as decimal separator
-            return str(amount).replace('.', ',')
+            return str(amount).replace('.', '.')
         except:
-            return '0,00'
+            return '0.00'
     
     def save_amount(self):
         amount = self.format_amount(self.amount_var.get())
@@ -115,7 +115,7 @@ class CurrencyInput:
         
         with open(file_path, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=';')
-            writer.writerow(['credito'])
+            #writer.writerow(['credito'])
             writer.writerow([amount])
         
         self.root.quit()
@@ -126,13 +126,17 @@ class CurrencyInput:
             try:
                 with open(file_path, 'r') as csvfile:
                     reader = csv.reader(csvfile, delimiter=';')
-                    next(reader)  # Salta l'intestazione
-                    value = next(reader)[0]
-                    self.amount_var.set(value)
-            except:
-                self.amount_var.set('0,00')
+                    first_row = next(reader, None)  # Legge la prima riga
+                    if first_row:
+                        value = first_row[0]  # Prende il primo elemento della prima riga
+                        self.amount_var.set(value)
+                    else:
+                        self.amount_var.set('0.00')  # File vuoto
+            except Exception as e:
+                print(f"Errore durante la lettura del file: {e}")
+                self.amount_var.set('0.00')
         else:
-            self.amount_var.set('0,00')
+            self.amount_var.set('0.00')
 
 if __name__ == "__main__":
     root = tk.Tk()

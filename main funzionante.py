@@ -1,4 +1,3 @@
- #https://www.w3schools.com/colors/colors_names.asp tavolozza colori
 import tkinter as tk
 from tkinter import font
 from PIL import Image, ImageTk # type: ignore
@@ -14,11 +13,12 @@ from banknote_reader import BanknoteReader
 from backup_manager import BackupManager
 from menu import ConfigMenu
 from threading import Timer
-
+import pyautogui
 import csv
 import subprocess
 import pygame
 from tkinter import messagebox
+from PIL import Image,ImageTk
 
 pygame.mixer.pre_init(frequency=44100, size=-16,channels=2,buffer=4096)
 pygame.init()
@@ -33,14 +33,19 @@ subprocess.Popen(["python3", "/home/self/Desktop/server.py"])
 
 class MainApp:
     def __init__(self, master):
-        self.master = master
+        self.master = master  
         self.master.title("Sistema di Controllo Accessi")
-        self.master.geometry("1024x768")
+        self.master.geometry("1024x768")  # Imposta una dimensione iniziale  
         logging.info("Chiamata force_fullscreen() in __init__")
         self.master.after(100, self.force_fullscreen)  # Ritardo di 100 ms  
         self.master.bind('<Escape>', self.exit_fullscreen)
-        self.master.config(cursor="none")  # Imposta il cursore su "none" all'avvio
-        
+        self.master.config(cursor="none")  # Imposta il cursore su "none" all'avvio  
+        #mouse in centro al m
+        screen_width, screen_height = pyautogui.size()
+        center_x = screen_width // 2  
+        center_y = screen_height // 2  
+        pyautogui.moveTo(center_x, center_y)
+
         # Configurazione del logging
         logging.basicConfig(filename='main_app.log', level=logging.INFO,
                             format='%(asctime)s - %(levelname)s - %(message)s')
@@ -52,9 +57,9 @@ class MainApp:
         
         # Inizializza e avvia il BackupManager
         self.backup_manager = BackupManager(
-            source_file="/home/self/Desktop/SELF/clienti.csv",
+            source_file="clienti.csv",
             backup_dir="/media/self/BKDB/trabk",
-            transactions_file="/home/self/Desktop/SELF/transactions.csv",
+            transactions_file="transactions.csv",
             max_backups=30,
             interval_hours=6
         )
@@ -67,14 +72,14 @@ class MainApp:
         self.current_client = None
         
         self.config_card = {"nome": "CONFIGURAZIONE", "cognome": "123456"}
-      
+       
         if self.rfid_reader.setup():
             self.setup_main_page()
             #self.print_all_clients()  # Stampa tutti i clienti all'avvio
         else:
             logging.error("Errore nell'inizializzazione del lettore RFID")
             print("Errore nell'inizializzazione del lettore RFID")
-        
+        #modifica forzatura 
         self.check_fullscreen()
 
     def force_fullscreen(self):
@@ -83,17 +88,20 @@ class MainApp:
             self.master.attributes('-fullscreen', True)
 
     def exit_fullscreen(self, event=None):
-        logging.info("Uscita dalla modalità fullscreen in exit_fullscreen()")
+        logging.info("Uscita dalla modalit� fullscreen in exit_fullscreen()")
         self.master.attributes('-fullscreen', False)
-        self.master.geometry("1024x768")  
-        self.master.focus_set() 
+        self.master.geometry("1024x768")  # Imposta la geometria desiderata  
+        self.master.focus_set()  # Riporta il focus sulla finestra
     
+    #controlla se la finestra e fullscreen  
+
     def check_fullscreen (self):
         if not self.master.attributes('-fullscreen'):
             self.master.attributes('-fullscreen',True)
             self.master.update()
         self.master.after(100,self.check_fullscreen)
-    
+    #fine modifica fullscreen 
+
     def start_backup_schedule(self):
         try:
             backup_thread = threading.Thread(target=self.backup_manager.start_backup_schedule, daemon=True)
@@ -129,10 +137,9 @@ class MainApp:
             print(f"Errore: L'immagine {bg_path} non esiste.")
 
     def show_main_message(self):
-
-        custom_font = font.Font(family="Noto Mono", size=80, weight="bold")
-        self.main_message = tk.Label(self.master, text="AVVICINARE\nLA TESSERA", 
-                                     font=custom_font, fg="gold", bg="#191970")
+        custom_font = font.Font(family="Noto Mono", size=36, weight="bold")
+        self.main_message = tk.Label(self.master, text="AVVICINARE LA TESSERA", 
+                                     font=custom_font, fg="yellow", bg="black")
         self.main_message.place(relx=0.5, rely=0.5, anchor="center")
 
     def clear_window(self):
@@ -140,7 +147,7 @@ class MainApp:
             widget.destroy()
 
     def start_rfid_reading(self):
-        self.timer_manager.stop_trpi()  
+        self.timer_manager.stop_trpi()  # Ferma il timer esistente
         self.master.after(100, self.check_rfid)
 
     def check_rfid(self):
@@ -344,15 +351,25 @@ class MainApp:
         # Salva lo stato attuale dell'interfaccia
         self.clear_window()
         self.setup_background()
+
+        # Crea un frame per il messaggio
         promo_frame = tk.Frame(self.master, bg="black")
         promo_frame.place(relx=0.5, rely=0.5, anchor="center")
+
+        # Crea un font grande e in grassetto
         promo_font = font.Font(family="Arial", size=60, weight="bold")
 
-        message = f"HAI RICEVUTO\nUNA PROMOZIONE DI \n\u20ac{promo_amount:.2f}!"
+        # Crea il messaggio
+        message = f"HAI RICEVUTO\nUNA PROMOZIONE DI\n�{promo_amount:.2f}!"
         
+        # Crea un label con il messaggio
         label = tk.Label(promo_frame, text=message, font=promo_font, fg="yellow", bg="black")
         label.pack(expand=True)
+
+        # Aggiorna la finestra
         self.master.update()
+
+        # Programma la chiusura del messaggio dopo 2 secondi
         self.master.after(2000, self.continue_after_promo)
 
     def continue_after_promo(self):
@@ -364,16 +381,13 @@ class MainApp:
         else:
             self.return_to_main_page()
 
-
-
     def stop_recharge(self):
         logging.info("Terminazione procedura di ricarica")
         play_audio("/home/self/Desktop/sintesi vocale/arr&gra.mp3")
 
-        self.timer_manager.reset_trto()
-
         self.banknote_reader.deactivate()
         if self.current_client and self.recharge_amount > 0:
+            # Controlla se c'� una promozione attiva
             promo_amount = self.check_promo(self.recharge_amount)
             total_recharge = self.recharge_amount + promo_amount
 
@@ -390,7 +404,8 @@ class MainApp:
             else:
                 self.continue_after_promo()
         else:
-            self.return_to_main_page()    
+            self.return_to_main_page()          
+
 
     def check_receipt_printing_option(self):
         try:

@@ -82,7 +82,7 @@ def load_and_process_data(mode='total'):
                 continue
         raise ValueError(f"Formato data non riconosciuto: {date_string}")
 
-    with open('/home/self/transactions.csv', 'r') as file:
+    with open('/home/self/Desktop/SELF/transactions.csv', 'r') as file:
         reader = csv.DictReader(file)
         for row in reader:
             if 'Cliente' in row:
@@ -389,7 +389,7 @@ def create_gui(data):
 if __name__ == "__main__":
     try:
         print("Anteprima del file transactions.csv:")
-        print_csv_preview('/home/self/transactions.csv')
+        print_csv_preview('/home/self/Desktop/SELF/transactions.csv')
         
         data, current_month, last_month = load_and_process_data()
         create_gui(data)

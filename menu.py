@@ -12,7 +12,7 @@ import locale
 from calendar import day_name, month_name
 from dateutil.relativedelta import relativedelta
 from tkinter import messagebox
-import subprocess  #lanciare finestra esterna
+import subprocess 
 from tkinter import ttk, messagebox
 from virtual_number import VirtualNumberKeyboard
 from timer_manager import TimerManager
@@ -23,8 +23,18 @@ from utils import show_loading, close_loading
 import logging
 import subprocess
 import os
-# Imposta la localizzazione italiana
+import sys
+import pygame
+
 locale.setlocale(locale.LC_TIME, 'it_IT.utf8')
+
+pygame.mixer.pre_init(frequency=44100, size=-16,channels=2,buffer=4096)
+pygame.init()
+
+beep_sound = pygame.mixer.Sound('/home/self/Desktop/sintesi vocale/beep.mp3')
+    
+def beep():
+    beep_sound.play()
 
 class ConfigMenu:
     def __init__(self, master, return_callback):
@@ -53,11 +63,12 @@ class ConfigMenu:
         self.screen_height = self.master.winfo_screenheight()
 
     def show_config_menu(self):
+        beep()
         if hasattr(self, 'config_window') and self.config_window.winfo_exists():
             self.config_window.lift()
             self.config_window.focus_force()
             return
-
+        
         self.config_window = tk.Toplevel(self.master)
         self.config_window.title("Menu Configurazione")
         #self.config_window.overrideredirect(True)
@@ -169,6 +180,7 @@ class ConfigMenu:
                         font=("Helvetica", 12))
 
     def close_config_menu(self):
+        beep()
         if hasattr(self, 'config_window') and self.config_window.winfo_exists():
             self.clicked_buttons.clear()  # Resetta lo stato dei pulsanti
             self.config_window.grab_release()
@@ -180,10 +192,12 @@ class ConfigMenu:
         window.geometry(f"{self.screen_width}x{self.screen_height}+10+10")
 
     def libero(self):
+        beep()
         # Implementa la gestione dei pagamenti
         pass
 
     def show_totals_menu(self):
+        beep()
         if hasattr(self, 'totals_window') and self.totals_window.winfo_exists():
             self.totals_window.lift()
             self.totals_window.focus_force()
@@ -210,6 +224,7 @@ class ConfigMenu:
             ("TOTALI MENSILI", self.show_monthly_totals),
             ("TOTALI GIORNALIERI", self.show_daily_totals),
             ("TOTALI PERSONALIZZATI", self.show_custom_period_totals),
+            ("CHIUSURE AUTOMATICHE", self.open_tot_auto),
             ("INDIETRO", self.close_totals_menu)
         ]
 
@@ -226,7 +241,12 @@ class ConfigMenu:
         self.totals_window.transient(self.master)
         self.totals_window.grab_set()
 
+    def open_tot_auto(self):
+        beep()
+        subprocess.Popen(["sudo","python3", "/home/self/Desktop/SELF/micro_tot.py"])
+
     def close_totals_menu(self):
+        beep()
         if hasattr(self, 'totals_window') and self.totals_window.winfo_exists():
             self.totals_window.grab_release()
             self.totals_window.destroy()
@@ -245,21 +265,15 @@ class ConfigMenu:
         return sub_window
     
     def open_clienti_menu(self):
+        beep()
         subprocess.Popen(["python3", "/home/self/Desktop/SELF/rep_clienti_menu.py"])
 
 
     def show_configurations(self):
+        beep()
         config_window = self.create_sub_window("Configurazioni")
-        self.resize_and_center_window(config_window, 1024, 800)
-
-
-        # Rimuovi la chiamata a overrideredirect(True)
-        # config_window.overrideredirect(True)
-
-        # Imposta la finestra a schermo intero
+        self.resize_and_center_window(config_window, 1024, 600)
         self.set_fullscreen(config_window)
-
-        # Ridimensionare e posizionare correttamente la finestra
         self.resize_and_center_window(config_window)
 
         main_frame = ttk.Frame(config_window, style='Main.TFrame')
@@ -306,31 +320,50 @@ class ConfigMenu:
     
 
     def reboot_system(self):
+        beep()
         try:
-            
-            self.master.destroy()  # Chiude tutte le finestre
-            subprocess.Popen(["bash", os.path.expanduser("~/restart_self.sh")])
+            print("Iniziando il processo di riavvio...")
+
+            # Chiude l'applicazione corrente
+            self.master.destroy()
+
+            # Esegue il comando di riavvio del sistema
+            if sys.platform.startswith('linux'):
+                subprocess.run(['sudo', 'reboot'], check=True)
+            elif sys.platform == 'win32':
+                subprocess.run(['shutdown', '/r', '/t', '0'], check=True)
+            else:
+                print("Sistema operativo non supportato per il riavvio automatico.")
+
+        except subprocess.CalledProcessError as e:
+            print(f"Errore durante l'esecuzione del comando di riavvio: {e}")
         except Exception as e:
             print(f"Errore durante l'esecuzione dello script: {str(e)}")
 
     def config_stampante(self):
+        beep()
         subprocess.Popen(["python3","/home/self/Desktop/SELF/conf_stampante.py"])
 
     def manage_backups(self):
+        beep()
         subprocess.Popen(["python3","/home/self/Desktop/SELF/bck_manual.py"])
 
     def vocale(self):
+        beep()
         subprocess.Popen(["python3","/home/self/Desktop/SELF/vocale.py"])
 
     def manage_payments(self):
+        beep()
         # Implementa la gestione dei pagamenti
         pass
 
     def manage_credit(self):
+        beep()
         subprocess.Popen(["python3", "/home/self/Desktop/SELF/credito.py"])
 
 
     def manage_promotions(self):
+        beep()
         promo_window = tk.Toplevel(self.master)
         promo_window.title("Gestione Promozioni")
         #promo_window.overrideredirect(True)
@@ -349,10 +382,10 @@ class ConfigMenu:
         button_frame.columnconfigure(0, weight=1)
         button_frame.columnconfigure(1, weight=1)
 
-        # Bottoni per 'premio', 'ricarica' e 'esci'
+    
         buttons = [
-            ("PREMIO", lambda: subprocess.Popen(["python3", "/home/self/Desktop/SELF/classifica.py", "-topmost", "1"])),
-            ("RICARICA", lambda: subprocess.Popen(["python3", "/home/self/Desktop/SELF/promo_ricarica.py", "-topmost", "1"])),  # Sostituisci "ricarica.py" con il nome corretto del file
+            ("PREMIO", self.conf_premio),
+            ("RICARICA", lambda: subprocess.Popen(["python3", "/home/self/Desktop/SELF/promo_ricarica.py", "-topmost", "1"])),
             ("ESCI", promo_window.destroy)
         ]
 
@@ -369,17 +402,23 @@ class ConfigMenu:
         promo_window.transient(self.master)
         promo_window.grab_set()
     
-    
+    #
+    def conf_premio(self):
+        (beep)
+        subprocess.Popen(["python3", "/home/self/Desktop/SELF/classifica.py"])
+
 
     def check_updates(self):
+        beep()
         subprocess.Popen(["python3", "/home/self/Desktop/SELF/aggiorna_online.py"])
 
 
     def open_timer_menu(self):
+        beep()
         subprocess.Popen(["python3", "/home/self/Desktop/SELF/timer_menu.py"])
 
-        #TIMER MENU FINE
     def show_info_window(self):
+        beep()
         print("Inizio della funzione show_info_window")
         try:
             info_window = InfoWindow(self.master)
@@ -399,13 +438,15 @@ class ConfigMenu:
         return sub_window
 
     def show_absolute_totals(self):
+        beep()
         try:
             total = self.calculate_total_from_csv()
-            self.show_total_window("Totali Assoluti", f"Totale Assoluto: Ã¢â€šÂ¬{total:.2f}")
+            self.show_total_window("Totali Assoluti", f"Totale Assoluto: \u20ac{total:.2f}")
         except Exception as e:
             self.show_error_window(str(e))
 
     def show_monthly_totals(self):
+        beep()
         try:
             today = datetime.now()
             monthly_totals = []
@@ -420,6 +461,7 @@ class ConfigMenu:
             self.show_error_window(str(e))
 
     def show_monthly_totals_window(self, monthly_totals):
+        beep()
         total_window = tk.Toplevel(self.master)
         total_window.title("Totali Mensili")
         total_window.geometry("800x600")
@@ -434,7 +476,7 @@ class ConfigMenu:
         # Mese corrente
         current_month, current_total = monthly_totals[0]
         current_month_label = ttk.Label(content_frame, 
-                                        text=f"{current_month.strftime('%B')}: Ã¢â€šÂ¬{current_total:.2f}", 
+                                        text=f"{current_month.strftime('%B')}: \u20ac{current_total:.2f}", 
                                         style='CurrentDay.TLabel')
         current_month_label.pack(pady=(0, 20))
 
@@ -449,7 +491,7 @@ class ConfigMenu:
             month_label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
 
             total_label = ttk.Label(grid_frame, 
-                                    text=f"Ã¢â€šÂ¬{total:.2f}", 
+                                    text=f"\u20ac{total:.2f}", 
                                     style='GridContent.TLabel')
             total_label.grid(row=i, column=1, padx=10, pady=5, sticky="e")
 
@@ -464,9 +506,10 @@ class ConfigMenu:
         self.master.wait_window(total_window)
 
     def calculate_monthly_total(self, year, month):
+        beep()
         total = 0
         try:
-            with open('/home/self/transactions.csv', 'r') as file:
+            with open('/home/self/Desktop/SELF/transactions.csv', 'r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     trans_date = datetime.strptime(row['Data'], '%d/%m/%y')
@@ -477,6 +520,7 @@ class ConfigMenu:
         return total
 
     def show_daily_totals(self):
+        beep()
         try:
             today = datetime.now().date()
             daily_totals = []
@@ -491,6 +535,7 @@ class ConfigMenu:
             self.show_error_window(str(e))
 
     def show_daily_totals_window(self, daily_totals):
+        beep()
         total_window = tk.Toplevel(self.master)
         total_window.title("Totali Giornalieri")
         total_window.geometry("800x600")
@@ -506,7 +551,7 @@ class ConfigMenu:
         
         current_day, current_total = daily_totals[0]
         current_day_label = ttk.Label(content_frame, 
-                                      text=f"Oggi, {current_day.strftime('%d %B')} - {current_day.strftime('%A')}: Ã¢â€šÂ¬{current_total:.2f}", 
+                                      text=f"Oggi, {current_day.strftime('%d %B')} - {current_day.strftime('%A')}: \u20ac{current_total:.2f}", 
                                       style='CurrentDay.TLabel')
         current_day_label.pack(pady=(0, 20))
 
@@ -521,7 +566,7 @@ class ConfigMenu:
             day_label.grid(row=i, column=0, padx=10, pady=5, sticky="w")
 
             total_label = ttk.Label(grid_frame, 
-                                    text=f"Ã¢â€šÂ¬{total:.2f}", 
+                                    text=f"\u20ac{total:.2f}", 
                                     style='GridContent.TLabel')
             total_label.grid(row=i, column=1, padx=10, pady=5, sticky="e")
 
@@ -536,6 +581,7 @@ class ConfigMenu:
         self.master.wait_window(total_window)
 
     def show_total_window(self, title, message):
+        beep()
         total_window = tk.Toplevel(self.master)
         total_window.title(title)
         total_window.geometry("800x600")
@@ -560,7 +606,7 @@ class ConfigMenu:
     def calculate_total_from_csv(self):
         total = 0
         try:
-            with open('/home/self/transactions.csv', 'r') as file:
+            with open('/home/self/Desktop/SELF/transactions.csv', 'r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     total += float(row['Valore'])
@@ -575,9 +621,10 @@ class ConfigMenu:
         return total
 
     def calculate_monthly_total(self, year, month):
+        beep()
         total = 0
         try:
-            with open('/home/self/transactions.csv', 'r') as file:
+            with open('/home/self/Desktop/SELF/transactions.csv', 'r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     date = datetime.strptime(row['Data'], '%d/%m/%y')
@@ -588,9 +635,10 @@ class ConfigMenu:
         return total
 
     def calculate_daily_total(self, date):
+        beep()
         total = 0
         try:
-            with open('/home/self/transactions.csv', 'r') as file:
+            with open('/home/self/Desktop/SELF/transactions.csv', 'r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     trans_date = datetime.strptime(row['Data'], '%d/%m/%y').date()
@@ -623,6 +671,7 @@ class ConfigMenu:
         self.master.wait_window(error_window)
 
     def show_custom_period_totals(self):
+        beep()
         custom_window = tk.Toplevel(self.master)
         custom_window.title("Totali Personalizzati")
         self.set_fullscreen(custom_window)
@@ -702,6 +751,7 @@ class ConfigMenu:
         result_label.pack(pady=30)
 
         def calculate_totals():
+            beep()
             from_date = datetime.strptime(from_cal.get_date(), '%d/%m/%Y').date()
             to_date = datetime.strptime(to_cal.get_date(), '%d/%m/%Y').date()
 
@@ -711,7 +761,7 @@ class ConfigMenu:
 
             try:
                 total = self.calculate_custom_period_total(from_date, to_date)
-                result_label.config(text=f"Totale per il periodo selezionato:\n                         Ã¢â€šÂ¬{total:.2f}")
+                result_label.config(text=f"Totale per il periodo selezionato:\n                         \u20ac{total:.2f}")
             except Exception as e:
                 messagebox.showerror("Errore", f"Si ÃƒÂ¨ verificato un errore: {str(e)}")
 
@@ -730,9 +780,10 @@ class ConfigMenu:
         self.master.wait_window(custom_window)
 
     def calculate_custom_period_total(self, from_date, to_date):
+        beep()
         total = 0
         try:
-            with open('/home/self/transactions.csv', 'r') as file:
+            with open('/home/self/Desktop/SELF/transactions.csv', 'r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     trans_date = datetime.strptime(row['Data'], '%d/%m/%y').date()
@@ -743,6 +794,7 @@ class ConfigMenu:
         return total
 
     def calculate_totals():
+        beep()
         from_date = datetime.strptime(from_cal.get_date(), '%d/%m/%Y').date()
         to_date = datetime.strptime(to_cal.get_date(), '%d/%m/%Y').date()
 
@@ -751,7 +803,7 @@ class ConfigMenu:
         return
 
         total = self.calculate_custom_period_total(from_date, to_date)
-        result_label.config(text=f"Totale per il periodo selezionato: Ã¢â€šÂ¬{total:.2f}")
+        result_label.config(text=f"Totale per il periodo selezionato: \u20ac{total:.2f}")
 
         calculate_button = ttk.Button(content_frame, text="Calcola Totali", command=calculate_totals, style='LargeMenu.TButton')
         calculate_button.pack(pady=20)

@@ -6,6 +6,8 @@ import csv
 import threading
 import shutil
 import subprocess
+import zipfile
+from datetime import datetime
 
 class AggiornaApp(tk.Tk):
     def __init__(self):
@@ -38,13 +40,31 @@ class AggiornaApp(tk.Tk):
         self.github_repo = "https://api.github.com/repos/ronco619/aggiornamento/contents/"
         self.download_path = "/home/self/Desktop/AGGIORNAMENTI"
         self.self_path = "/home/self/Desktop/SELF"
+        self.backup_dir = "/home/self/Desktop/BCK-MANUALE"
+
+        self.FILES_TO_BACKUP = [
+            "/home/self/Desktop/SELF/clienti.csv",
+            "/home/self/credito.csv",
+            "/home/self/config_scontrino.csv",
+            "/home/self/Desktop/SELF/transactions.csv",
+            "/home/self/config_stampante.csv",
+            "/home/self/premi.csv",
+            "/home/self/timer_settings.json",
+            "/home/self/promo_tempo.csv",
+            "/home/self/promo_attivo.csv",
+            "/home/self/promo_ricarica.csv",
+            "/home/self/timer_config.json",
+            "/home/self/window_state.json"
+        ]
 
         if not os.path.exists(self.download_path):
             os.makedirs(self.download_path)
+        if not os.path.exists(self.backup_dir):
+            os.makedirs(self.backup_dir)
 
-        self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna e Riavvia" inizialmente
+        self.update_button.pack_forget()
         self.display_current_version()
-        self.check_version_file()  # Controlla se il file versione.csv è presente
+        self.check_version_file()
 
     def display_current_version(self):
         version_file = os.path.join(self.self_path, "versione.csv")
@@ -80,7 +100,7 @@ class AggiornaApp(tk.Tk):
 
             self.status_label.config(text="Aggiornamenti scaricati da GitHub.")
             self.display_version()
-            self.check_version_file()  # Ricontrolla il file versione.csv dopo il download
+            self.check_version_file()
         except Exception as e:
             self.status_label.config(text=f"Errore durante il download: {str(e)}")
         finally:
@@ -97,39 +117,75 @@ class AggiornaApp(tk.Tk):
             self.version_label.config(text=f"Errore durante la lettura del file versione: {str(e)}")
 
     def apply_updates_and_restart(self):
+        self.status_label.config(text="Creazione backup in corso...")
+        backup_file = self.create_backup()
+        if not backup_file:
+            self.status_label.config(text="Errore durante la creazione del backup. Aggiornamento annullato.")
+            return
+
         self.status_label.config(text="Applicazione degli aggiornamenti in corso...")
         try:
             if os.path.exists(self.self_path):
                 shutil.rmtree(self.self_path)
             shutil.move(self.download_path, self.self_path)
             os.makedirs(self.download_path)
-            self.status_label.config(text="Aggiornamenti applicati con successo.")
-            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna e Riavvia" dopo l'aggiornamento
+            self.status_label.config(text="Aggiornamenti applicati. Ripristino backup in corso...")
+            
+            self.restore_backup(backup_file)
+            
+            self.status_label.config(text="Aggiornamenti applicati e backup ripristinato con successo.")
+            self.update_button.pack_forget()
             self.display_current_version()
             self.save_and_restart()
         except Exception as e:
             self.status_label.config(text=f"Errore durante l'applicazione degli aggiornamenti: {str(e)}")
-            os.makedirs(self.download_path)  # Assicurati che la directory di download esista
+            os.makedirs(self.download_path)
+
+    def create_backup(self):
+        timestamp = datetime.now().strftime("%d-%m-%y_%H-%M")
+        backup_file = os.path.join(self.backup_dir, f"backup_{timestamp}.zip")
+        try:
+            with zipfile.ZipFile(backup_file, 'w') as backup_zip:
+                for file in self.FILES_TO_BACKUP:
+                    if os.path.exists(file):
+                        backup_zip.write(file, os.path.basename(file))
+            return backup_file
+        except Exception as e:
+            self.status_label.config(text=f"Errore durante la creazione del backup: {str(e)}")
+            return None
+
+    def restore_backup(self, backup_file):
+        try:
+            with zipfile.ZipFile(backup_file, 'r') as backup_zip:
+                for file in backup_zip.namelist():
+                    source = backup_zip.extract(file, "/tmp")
+                    if file in ["clienti.csv", "transactions.csv"]:
+                        destination = f"/home/self/Desktop/SELF/{file}"
+                    else:
+                        destination = f"/home/self/{file}"
+                    shutil.move(source, destination)
+        except Exception as e:
+            self.status_label.config(text=f"Errore durante il ripristino del backup: {str(e)}")
 
     def check_version_file(self):
         version_file = os.path.join(self.download_path, "versione.csv")
         if os.path.exists(version_file):
-            self.update_button.pack(pady=20)  # Mostra il pulsante "Aggiorna e Riavvia" solo se il file è presente
+            self.update_button.pack(pady=20)
         else:
-            self.update_button.pack_forget()  # Nascondi il pulsante "Aggiorna e Riavvia" se il file non è presente
+            self.update_button.pack_forget()
 
     def save_and_restart(self):
         self.save_settings()
-        self.destroy()  # Chiude tutte le finestre
-        subprocess.Popen(["bash", os.path.expanduser("~/restart_self.sh")])  # Esegue lo script di riavvio
+        self.destroy()
+        subprocess.Popen(["bash", os.path.expanduser("~/restart_self.sh")])
 
     def save_settings(self):
         # Implementa la logica di salvataggio delle impostazioni qui
         pass
 
     def chiudi_app(self):
-        self.destroy()  # Chiude tutte le finestre
+        self.destroy()
 
 if __name__ == "__main__":
     app = AggiornaApp()
-    app.mainloop()
+    app.mainloop()          
