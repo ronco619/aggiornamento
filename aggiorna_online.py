@@ -25,7 +25,7 @@ class AggiornaApp(tk.Tk):
         self.check_button = tk.Button(self, text="Controlla Aggiornamenti", command=self.check_updates, font=("Arial", 12))
         self.check_button.pack(pady=20)
         
-        self.update_button = tk.Button(self, text="Aggiorna e Riavvia", command=self.apply_updates_and_restart, font=("Arial", 12))
+        self.update_button = tk.Button(self, text="Aggiorna", command=self.apply_updates_and_restart, font=("Arial", 12))
         self.update_button.pack(pady=20)
 
         self.version_label = tk.Label(self, text="", bg="white", font=("Arial", 12))
@@ -37,7 +37,7 @@ class AggiornaApp(tk.Tk):
         self.close_button = tk.Button(self, text="Chiudi", command=self.chiudi_app, font=("Arial", 12))
         self.close_button.pack(pady=20)
 
-        self.restart_button = tk.Button(self, text="Riavvia Ora", command=self.restart_application, font=("Arial", 12))
+        self.restart_button = tk.Button(self, text="Riavvia Ora", command=self.reboot_system, font=("Arial", 12))
         self.restart_button.pack_forget()  # Nascondi inizialmente il pulsante di riavvio
 
         # Lista dei passaggi
@@ -207,15 +207,20 @@ class AggiornaApp(tk.Tk):
             self.update_button.pack_forget()
 
     def show_completion_message(self):
-        self.status_label.config(text="Aggiornamento completato con successo! Premi 'Riavvia Ora' per applicare le modifiche.", fg="green")
+        self.status_label.config(text="Aggiornamento completato con successo! Premi 'Riavvia Ora' per applicare le modifiche e riavviare il sistema.", fg="green")
         self.restart_button.pack(pady=20)  # Mostra il pulsante di riavvio
         for label in self.step_labels:
             label.config(bg="lightgreen")  # Colora tutti i passaggi in verde chiaro
 
-    def restart_application(self):
-        self.save_settings()
-        self.destroy()
-        subprocess.Popen(["bash", os.path.expanduser("~/restart_self.sh")])
+    def reboot_system(self):
+        result = messagebox.askyesno("Riavvio Sistema", "Sei sicuro di voler riavviare il sistema?")
+        if result:
+            self.save_settings()
+            self.destroy()
+            try:
+                subprocess.run(['sudo', 'reboot'], check=True)
+            except subprocess.CalledProcessError:
+                messagebox.showerror("Errore", "Impossibile riavviare il sistema. Assicurati di avere i permessi necessari.")
 
     def save_settings(self):
         # Implementa la logica di salvataggio delle impostazioni qui
